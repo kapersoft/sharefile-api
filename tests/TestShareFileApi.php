@@ -208,14 +208,13 @@ class TestShareFileApi extends TestCase
      */
     public function it_can_get_item_breadcrumps() // @codingStandardsIgnoreLine
     {
-        $itemId = '';
+        $itemId = 'fi465994-8c44-4b8c-3a09-5046dc3e5adf';
         if ($this->mEmpty($itemId)) {
             $this->markTestSkipped('Fill in $itemId to complete this test.');
         }
 
         $response = $this->getClient()->getItemBreadCrumps($itemId);
 
-        $this->assertEquals('https://people-force.sf-api.com/sf/v3/$metadata#Items', $response['odata.metadata']);
         $this->assertGreaterThan(0, $response['odata.count']);
         $this->assertArrayHasKey('value', $response);
     }
