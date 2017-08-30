@@ -152,6 +152,7 @@ class TestShareFileApi extends TestCase
     public function it_can_get_user() // @codingStandardsIgnoreLine
     {
         $response = $this->getClient()->getUser();
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.AccountUser', $response['odata.type']);
         $this->assertArrayHasKey('Email', $response);
@@ -172,6 +173,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->getItemById($itemId, false);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.Folder', $response['odata.type']);
         $this->assertEquals($itemId, $response['Id']);
@@ -193,6 +195,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->getItemById($itemId, true);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.Folder', $response['odata.type']);
         $this->assertEquals($itemId, $response['Id']);
@@ -208,12 +211,13 @@ class TestShareFileApi extends TestCase
      */
     public function it_can_get_item_breadcrumps() // @codingStandardsIgnoreLine
     {
-        $itemId = 'fi465994-8c44-4b8c-3a09-5046dc3e5adf';
+        $itemId = '';
         if ($this->mEmpty($itemId)) {
             $this->markTestSkipped('Fill in $itemId to complete this test.');
         }
 
         $response = $this->getClient()->getItemBreadCrumps($itemId);
+        // print_r($response);
 
         $this->assertGreaterThan(0, $response['odata.count']);
         $this->assertArrayHasKey('value', $response);
@@ -259,6 +263,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->getItemByPath($itemPath);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.File', $response['odata.type']);
     }
@@ -280,6 +285,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->createFolder($parentId, $name, $description);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.Folder', $response['odata.type']);
         $this->assertEquals($name, $response['FileName']);
@@ -303,6 +309,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->createFolder($parentId, 'My Folder', 'My Description', true);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.Folder', $response['odata.type']);
         $this->assertEquals($name, $response['FileName']);
@@ -324,6 +331,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->deleteItem($itemId);
+        // print_r($response);
 
         $this->assertEquals([], $response);
     }
@@ -343,6 +351,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->getItemDownloadUrl($itemId);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.DownloadSpecification', $response['odata.type']);
         $this->assertTrue(
@@ -366,6 +375,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->getItemContents($itemId);
+        // print_r($response);
 
         $this->assertNotEmpty($response);
     }
@@ -387,6 +397,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->getChunkUri($method, $filename, $folderId);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.UploadSpecification', $response['odata.type']);
         $this->assertEquals(strtolower($method), strtolower($response['Method']));
@@ -412,6 +423,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->uploadFileStandard($filename, $folderId);
+        // print_r($response);
 
         $this->assertEquals('OK', $response);
     }
@@ -437,6 +449,7 @@ class TestShareFileApi extends TestCase
             'Name' => $newFileName
         ];
         $response = $this->getCLient()->updateItem($itemId, $data);
+        // print_r($response);
 
         $this->assertEquals($newName, $response['Name']);
         $this->assertEquals($newFileName, $response['FileName']);
@@ -457,6 +470,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getCLient()->getThumbnailUrl($itemId);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.Redirection', $response['odata.type']);
         $this->assertTrue(
@@ -480,6 +494,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getCLient()->getWebAppLink($itemId);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.Redirection', $response['odata.type']);
         $this->assertTrue(
@@ -514,6 +529,7 @@ class TestShareFileApi extends TestCase
             ]
         ];
         $response = $this->getClient()->createShare($options, false);
+        // print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.Share', $response['odata.type']);
         $this->assertEquals($title, $response['Title']);
