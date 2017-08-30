@@ -209,7 +209,7 @@ class TestShareFileApi extends TestCase
      *
      * @return void
      */
-    public function it_can_get_item_breadcrumps() // @codingStandardsIgnoreLine
+    public function it_can_get_item_breadcrumps() // @codingStandardsIgnoreLineomposccomcfccfffffffffffffffffffdfdfdffdffddf
     {
         $itemId = '';
         if ($this->mEmpty($itemId)) {
@@ -644,11 +644,14 @@ class TestShareFileApi extends TestCase
      */
     private function mEmpty(...$args): bool
     {
-        foreach(func_get_args() as $arg)
-            if(empty($arg))
+        $arguments = func_get_args();
+        foreach ($arguments as $argument) {
+            if (empty($argument)) {
                 return true;
-            else
+            } else {
                 continue;
+            }
+        }
         return false;
     }
 
