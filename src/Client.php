@@ -5,7 +5,9 @@ namespace Kapersoft\ShareFile;
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\HandlerStack;
 use Kapersoft\Sharefile\Exceptions\BadRequest;
+use GuzzleHttp\Handler\MockHandler;
 
 /**
  * Class Client.
@@ -50,16 +52,16 @@ class Client
     /**
      * Client constructor.
      *
-     * @param string         $hostname      ShareFile hostname
-     * @param string         $client_id     OAuth2 client_id
-     * @param string         $client_secret OAuth2 client_secret
-     * @param string         $username      ShareFile username
-     * @param string         $password      ShareFile password
-     * @param HandlerStack   $handler       Guzzle Handler
+     * @param string                         $hostname      ShareFile hostname
+     * @param string                         $client_id     OAuth2 client_id
+     * @param string                         $client_secret OAuth2 client_secret
+     * @param string                         $username      ShareFile username
+     * @param string                         $password      ShareFile password
+     * @param mixed|MockHandler|HandlerStack $handler       Guzzle Handler
      *
      * @throws Exception
      */
-    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, HandlerStack $handler = null)
+    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null)
     {
         $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
 
@@ -81,18 +83,18 @@ class Client
     /**
      * ShareFile authentication using username/password.
      *
-     * @param string         $hostname      ShareFile hostname
-     * @param string         $client_id     OAuth2 client_id
-     * @param string         $client_secret OAuth2 client_secret
-     * @param string         $username      ShareFile username
-     * @param string         $password      ShareFile password
-     * @param HandlerStack   $handler       Guzzle Handler
+     * @param string                         $hostname      ShareFile hostname
+     * @param string                         $client_id     OAuth2 client_id
+     * @param string                         $client_secret OAuth2 client_secret
+     * @param string                         $username      ShareFile username
+     * @param string                         $password      ShareFile password
+     * @param mixed|MockHandler|HandlerStack $handler       Guzzle Handler
      *
      * @throws Exception
      *
      * @return array
      */
-    protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, HandlerStack $handler = null):array
+    protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null):array
     {
         $uri = "https://{$hostname}/oauth/token";
 
