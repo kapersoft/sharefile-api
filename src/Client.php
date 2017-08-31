@@ -22,7 +22,7 @@ class Client
     /**
      * ShareFile token.
      *
-     * @var string
+     * @var array
      */
     public $token;
 
@@ -50,16 +50,16 @@ class Client
     /**
      * Client constructor.
      *
-     * @param string $hostname      ShareFile hostname
-     * @param string $client_id     OAuth2 client_id
-     * @param string $client_secret OAuth2 client_secret
-     * @param string $username      ShareFile username
-     * @param string $password      ShareFile password
-     * @param null   $handler       Guzzle Handler
+     * @param string         $hostname      ShareFile hostname
+     * @param string         $client_id     OAuth2 client_id
+     * @param string         $client_secret OAuth2 client_secret
+     * @param string         $username      ShareFile username
+     * @param string         $password      ShareFile password
+     * @param HandlerStack   $handler       Guzzle Handler
      *
      * @throws Exception
      */
-    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null)
+    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, HandlerStack $handler = null)
     {
         $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
 
@@ -81,18 +81,18 @@ class Client
     /**
      * ShareFile authentication using username/password.
      *
-     * @param string $hostname      ShareFile hostname
-     * @param string $client_id     OAuth2 client_id
-     * @param string $client_secret OAuth2 client_secret
-     * @param string $username      ShareFile username
-     * @param string $password      ShareFile password
-     * @param null   $handler       Guzzle Handler
+     * @param string         $hostname      ShareFile hostname
+     * @param string         $client_id     OAuth2 client_id
+     * @param string         $client_secret OAuth2 client_secret
+     * @param string         $username      ShareFile username
+     * @param string         $password      ShareFile password
+     * @param HandlerStack   $handler       Guzzle Handler
      *
      * @throws Exception
      *
      * @return array
      */
-    protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null):array
+    protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, HandlerStack $handler = null):array
     {
         $uri = "https://{$hostname}/oauth/token";
 
@@ -170,7 +170,7 @@ class Client
      */
     public function getItemById(string $itemId, bool $getChildren = false):array
     {
-        $parameters = $getChildren == true ? '$expand=Children' : '';
+        $parameters = $getChildren === true ? '$expand=Children' : '';
 
         return $this->get("Items({$itemId})?{$parameters}");
     }
@@ -301,7 +301,7 @@ class Client
         $parameters = $this->buildHttpQuery(
             [
                 'includeallversions' => $includeallversions,
-                'redirect'           => 'true',
+                'redirect'           => true,
             ]
         );
 
@@ -443,9 +443,9 @@ class Client
     /**
      * Make a request to the API.
      *
-     * @param string $method   HTTP Method
-     * @param string $endpoint API endpoint
-     * @param null   $json     POST body (optional)
+     * @param string             $method   HTTP Method
+     * @param string             $endpoint API endpoint
+     * @param mixed|string|array $json     POST body (optional)
      *
      * @throws Exception
      *
@@ -482,8 +482,8 @@ class Client
     /**
      * Shorthand for POST-request.
      *
-     * @param string $endpoint API endpoint
-     * @param null   $json     POST body (optional)
+     * @param string             $endpoint API endpoint
+     * @param mixed|string|array $json     POST body (optional)
      *
      * @return mixed|string|array
      */
@@ -495,8 +495,8 @@ class Client
     /**
      * Shorthand for PATCH-request.
      *
-     * @param string $endpoint API endpoint
-     * @param null   $json     POST body (optional)
+     * @param string             $endpoint API endpoint
+     * @param mixed|string|array $json     POST body (optional)
      *
      * @return mixed|string|array
      */
@@ -559,7 +559,7 @@ class Client
     /**
      * Validate JSON.
      *
-     * @param null $data JSON variable
+     * @param mixex|string|array $data JSON variable
      *
      * @return bool
      */
