@@ -52,12 +52,12 @@ class Client
     /**
      * Client constructor.
      *
-     * @param string                         $hostname      ShareFile hostname
-     * @param string                         $client_id     OAuth2 client_id
-     * @param string                         $client_secret OAuth2 client_secret
-     * @param string                         $username      ShareFile username
-     * @param string                         $password      ShareFile password
-     * @param mixed|MockHandler|HandlerStack $handler       Guzzle Handler
+     * @param string                   $hostname      ShareFile hostname
+     * @param string                   $client_id     OAuth2 client_id
+     * @param string                   $client_secret OAuth2 client_secret
+     * @param string                   $username      ShareFile username
+     * @param string                   $password      ShareFile password
+     * @param MockHandler|HandlerStack $handler       Guzzle Handler
      *
      * @throws Exception
      */
@@ -83,12 +83,12 @@ class Client
     /**
      * ShareFile authentication using username/password.
      *
-     * @param string                         $hostname      ShareFile hostname
-     * @param string                         $client_id     OAuth2 client_id
-     * @param string                         $client_secret OAuth2 client_secret
-     * @param string                         $username      ShareFile username
-     * @param string                         $password      ShareFile password
-     * @param mixed|MockHandler|HandlerStack $handler       Guzzle Handler
+     * @param string                   $hostname      ShareFile hostname
+     * @param string                   $client_id     OAuth2 client_id
+     * @param string                   $client_secret OAuth2 client_secret
+     * @param string                   $username      ShareFile username
+     * @param string                   $password      ShareFile password
+     * @param MockHandler|HandlerStack $handler       Guzzle Handler
      *
      * @throws Exception
      *
@@ -296,7 +296,7 @@ class Client
      * @param string $itemId             Item id
      * @param bool   $includeallversions $includeallversions For folder downloads only, includes old versions of files in the folder in the zip when true, current versions only when false (default)
      *
-     * @return mixed|string
+     * @return mixed
      */
     public function getItemContents(string $itemId, bool $includeallversions = false)
     {
@@ -451,7 +451,7 @@ class Client
      *
      * @throws Exception
      *
-     * @return mixed|string|array
+     * @return mixed
      */
     protected function request(string $method, string $endpoint, $json = null)
     {
@@ -474,7 +474,7 @@ class Client
      *
      * @param string $endpoint API endpoint
      *
-     * @return mixed|string|array
+     * @return mixed
      */
     protected function get(string $endpoint)
     {
@@ -487,7 +487,7 @@ class Client
      * @param string             $endpoint API endpoint
      * @param mixed|string|array $json     POST body (optional)
      *
-     * @return mixed|string|array
+     * @return mixed
      */
     protected function post(string $endpoint, $json = null)
     {
@@ -500,7 +500,7 @@ class Client
      * @param string             $endpoint API endpoint
      * @param mixed|string|array $json     POST body (optional)
      *
-     * @return mixed|string|array
+     * @return mixed
      */
     protected function patch(string $endpoint, $json = null)
     {
@@ -512,7 +512,7 @@ class Client
      *
      * @param string $endpoint API endpoint
      *
-     * @return mixed|string|array
+     * @return string|array
      */
     protected function delete(string $endpoint)
     {
@@ -561,7 +561,7 @@ class Client
     /**
      * Validate JSON.
      *
-     * @param mixed|string|array $data JSON variable
+     * @param mixed $data JSON variable
      *
      * @return bool
      */
