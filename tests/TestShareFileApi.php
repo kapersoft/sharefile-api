@@ -6,39 +6,38 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use Kapersoft\Sharefile\Client;
 use Kapersoft\Sharefile\Exceptions\BadRequest;
+use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 use PHPUnit\Framework\TestCase;
-use org\bovigo\vfs\vfsStream;
 
 /**
- * Class TestClient
+ * Class TestClient.
  *
  * @category GitHub_Repositories
- * @package  Kapersoft\ShareFile
+ *
  * @author   Jan Willem Kaper <kapersoft@gmail.com>
  * @license  MIT (see License.txt)
+ *
  * @link     http://github.com/kapersoft/sharefile-api
  */
-
 class TestShareFileApi extends TestCase
 {
-
     /**
-     * Mock Guzzle client
+     * Mock Guzzle client.
      *
      * @var \Kapersoft\ShareFile\Client
      */
     protected $client;
 
     /**
-     * Virtual FS root
+     * Virtual FS root.
      *
      * @var \org\bovigo\vfs\vfsStream
      * */
     private $vfsRoot;
 
     /**
-     * Setup Test
+     * Setup Test.
      *
      * @return void
      */
@@ -48,7 +47,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_be_instantiated
+     * Test for it_can_be_instantiated.
      *
      * @test
      *
@@ -68,7 +67,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_throw_exception_using_wrong_hostname
+     * Test for it_can_throw_exception_using_wrong_hostname.
      *
      * @test
      *
@@ -84,12 +83,11 @@ class TestShareFileApi extends TestCase
             'error_secret',
             'error_username',
             'error_password'
-        )
-        ;
+        );
     }
 
     /**
-     * Test for it_can_throw_exception_using_wrong_api_details
+     * Test for it_can_throw_exception_using_wrong_api_details.
      *
      * @test
      *
@@ -109,7 +107,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_throw_exception_using_wrong_password
+     * Test for it_can_throw_exception_using_wrong_password.
      *
      * @test
      *
@@ -129,7 +127,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_throw_a_badrequest_exception
+     * Test for it_can_throw_a_badrequest_exception.
      *
      * @test
      *
@@ -143,7 +141,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_user
+     * Test for it_can_get_user.
      *
      * @test
      *
@@ -159,7 +157,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_item_without_children
+     * Test for it_can_get_item_without_children.
      *
      * @test
      *
@@ -181,7 +179,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_item_with_children
+     * Test for it_can_get_item_with_children.
      *
      * @test
      *
@@ -203,7 +201,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_item_breadcrumps
+     * Test for it_can_get_item_breadcrumps.
      *
      * @test
      *
@@ -224,7 +222,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_copy_an_item
+     * Test for it_can_copy_an_item.
      *
      * @test
      *
@@ -249,7 +247,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_item_by_path
+     * Test for it_can_get_item_by_path.
      *
      * @test
      *
@@ -269,7 +267,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_create_folder
+     * Test for it_can_create_folder.
      *
      * @test
      *
@@ -293,7 +291,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_create_and_overwrite_a_folder
+     * Test for it_can_create_and_overwrite_a_folder.
      *
      * @test
      *
@@ -317,7 +315,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_delete_an_item
+     * Test for it_can_delete_an_item.
      *
      * @test
      *
@@ -337,7 +335,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_download_url_of_an_item
+     * Test for it_can_get_download_url_of_an_item.
      *
      * @test
      *
@@ -361,7 +359,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_contents_of_an_item
+     * Test for it_can_get_contents_of_an_item.
      *
      * @test
      *
@@ -381,7 +379,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_chunk_uri
+     * Test for it_can_get_chunk_uri.
      *
      * @test
      *
@@ -408,7 +406,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_upload_an_item_using_http_post
+     * Test for it_can_upload_an_item_using_http_post.
      *
      * @test
      *
@@ -429,7 +427,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_update_an_item
+     * Test for it_can_update_an_item.
      *
      * @test
      *
@@ -446,7 +444,7 @@ class TestShareFileApi extends TestCase
 
         $data = [
             'FileName' => $newFileName,
-            'Name' => $newFileName
+            'Name'     => $newFileName,
         ];
         $response = $this->getCLient()->updateItem($itemId, $data);
         // print_r($response);
@@ -456,7 +454,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_download_a_thumbnail
+     * Test for it_can_download_a_thumbnail.
      *
      * @test
      *
@@ -480,7 +478,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_get_a_web_app_link
+     * Test for it_can_get_a_web_app_link.
      *
      * @test
      *
@@ -504,7 +502,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_create_shares
+     * Test for it_can_create_shares.
      *
      * @test
      *
@@ -521,12 +519,12 @@ class TestShareFileApi extends TestCase
 
         $options = [
             'ShareType' => $shareType,
-            'Title' => $title,
-            'Items' => [
+            'Title'     => $title,
+            'Items'     => [
                 [
-                    'Id' => $itemId
-                ]
-            ]
+                    'Id' => $itemId,
+                ],
+            ],
         ];
         $response = $this->getClient()->createShare($options, false);
         // print_r($response);
@@ -541,7 +539,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Test for it_can_create_read_update_and_delete
+     * Test for it_can_create_read_update_and_delete.
      *
      * @test
      *
@@ -569,7 +567,7 @@ class TestShareFileApi extends TestCase
             },
             $rootPath
         );
-        $rootPath = '/' . implode('/', $rootPath) . '/' . $rootFolder['FileName'];
+        $rootPath = '/'.implode('/', $rootPath).'/'.$rootFolder['FileName'];
 
         // Create Folder
         $newFolder = $this->getClient()->createFolder($rootFolderId, 'ShareFileApiTest', 'Folder for testing ShareFile Api', true);
@@ -579,7 +577,7 @@ class TestShareFileApi extends TestCase
         $this->getClient()->uploadFileStandard($vfsFile->url(), $newFolder['Id'], false, true, true);
 
         // Get File Details using Path
-        $newFile = $this->getClient()->getItemByPath($rootPath . '/' . $newFolder['FileName'] . '/MyPicture.jpg');
+        $newFile = $this->getClient()->getItemByPath($rootPath.'/'.$newFolder['FileName'].'/MyPicture.jpg');
 
         // Create subfolder
         $subfolder = $this->getClient()->createFolder($newFolder['Id'], 'Subfolder', 'Subfolder for testing ShareFile Api', true);
@@ -589,7 +587,7 @@ class TestShareFileApi extends TestCase
 
         // Rename file
         $itemData = [
-           'Name' => 'MyOtherPicture.jpg',
+           'Name'     => 'MyOtherPicture.jpg',
            'FileName' => 'MyOtherPicture.jpg',
         ];
         $renamedFile = $this->getClient()->updateItem($copiedItem['Id'], $itemData, true, true);
@@ -597,8 +595,8 @@ class TestShareFileApi extends TestCase
         // Move file to $newFolder
         $itemData = [
            'Parent' => [
-               'Id' => $newFolder['Id']
-           ]
+               'Id' => $newFolder['Id'],
+           ],
         ];
         $movedFile = $this->getClient()->updateItem($renamedFile['Id'], $itemData, true, true);
 
@@ -616,7 +614,7 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Get Client
+     * Get Client.
      *
      * @return Client
      */
@@ -636,9 +634,9 @@ class TestShareFileApi extends TestCase
     }
 
     /**
-     * Check if one ore more variables is empty
+     * Check if one ore more variables is empty.
      *
-     * @param  array ...$args
+     * @param array ...$args
      *
      * @return bool
      */
@@ -652,6 +650,7 @@ class TestShareFileApi extends TestCase
                 continue;
             }
         }
+
         return false;
     }
 

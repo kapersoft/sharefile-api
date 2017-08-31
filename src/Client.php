@@ -8,33 +8,33 @@ use GuzzleHttp\Exception\ClientException;
 use Kapersoft\Sharefile\Exceptions\BadRequest;
 
 /**
- * Class Client
+ * Class Client.
  *
  * @category GitHub_Repositories
- * @package  Kapersoft\ShareFile
+ *
  * @author   Jan Willem Kaper <kapersoft@gmail.com>
  * @license  MIT (see License.txt)
+ *
  * @link     http://github.com/kapersoft/sharefile-api
  */
-
 class Client
 {
     /**
-     * ShareFile token
+     * ShareFile token.
      *
      * @var string
      */
     public $token;
 
     /**
-     * Guzzle Client
+     * Guzzle Client.
      *
      * @var \GuzzleHttp\Client
      */
     public $client;
 
     /**
-     *  HTTP methods
+     *  HTTP methods.
      */
     private const GET = 'GET';
     private const POST = 'POST';
@@ -42,7 +42,7 @@ class Client
     private const DELETE = 'DELETE';
 
     /**
-     * Thumbnail size
+     * Thumbnail size.
      */
     public const THUMBNAIL_SIZE_M = 75;
     public const THUMBNAIL_SIZE_L = 600;
@@ -65,7 +65,7 @@ class Client
      * @param string $password      ShareFile password
      * @param null   $handler       Guzzle Handler
      *
-    * @throws Exception
+     * @throws Exception
      */
     public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null)
     {
@@ -87,7 +87,7 @@ class Client
     }
 
     /**
-     * ShareFile authentication using username/password
+     * ShareFile authentication using username/password.
      *
      * @param string $hostname      ShareFile hostname
      * @param string $client_id     OAuth2 client_id
@@ -96,20 +96,20 @@ class Client
      * @param string $password      ShareFile password
      * @param null   $handler       Guzzle Handler
      *
-     * @return array
-     *
      * @throws Exception
+     *
+     * @return array
      */
     protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null):array
     {
         $uri = "https://{$hostname}/oauth/token";
 
         $parameters = [
-            'grant_type' => 'password',
-            'client_id' => $client_id,
+            'grant_type'    => 'password',
+            'client_id'     => $client_id,
             'client_secret' => $client_secret,
-            'username' => $username,
-            'password' => $password
+            'username'      => $username,
+            'password'      => $password,
         ];
 
         try {
@@ -130,7 +130,7 @@ class Client
     }
 
     /**
-     * Get user details
+     * Get user details.
      *
      * @param string $userId ShareFile user id (optional)
      *
@@ -142,7 +142,7 @@ class Client
     }
 
     /**
-     * Create a folder
+     * Create a folder.
      *
      * @param string $parentId    Id of the parent folder
      * @param string $name        Name
@@ -155,21 +155,21 @@ class Client
     {
         $parameters = $this->buildHttpQuery(
             [
-                'overwrite' => $overwrite,
-                'passthrough' => false
+                'overwrite'   => $overwrite,
+                'passthrough' => false,
             ]
         );
 
         $data = [
-            'name' => $name,
-            'description' => $description
+            'name'        => $name,
+            'description' => $description,
         ];
 
         return $this->post("Items({$parentId})/Folder?{$parameters}", $data);
     }
 
     /**
-     * Get Folder/File using Id
+     * Get Folder/File using Id.
      *
      * @param string $itemId      Item id
      * @param bool   $getChildren Include children
@@ -178,13 +178,13 @@ class Client
      */
     public function getItemById(string $itemId, bool $getChildren = false):array
     {
-        $parameters = $getChildren == true  ? '$expand=Children' : '';
+        $parameters = $getChildren == true ? '$expand=Children' : '';
 
         return $this->get("Items({$itemId})?{$parameters}");
     }
 
     /**
-     * Get Folder/File using path
+     * Get Folder/File using path.
      *
      * @param string $path   Path
      * @param string $itemId Id of the root folder (optional)
@@ -201,7 +201,7 @@ class Client
     }
 
     /**
-     * Get breadcrumps of an item
+     * Get breadcrumps of an item.
      *
      * @param string $itemId Item Id
      *
@@ -213,7 +213,7 @@ class Client
     }
 
     /**
-     * Copy an item
+     * Copy an item.
      *
      * @param string $targetId  Id of the target folder
      * @param string $itemId    Id of the copied item
@@ -225,7 +225,7 @@ class Client
     {
         $parameters = $this->buildHttpQuery(
             [
-                'targetid' => $targetId,
+                'targetid'  => $targetId,
                 'overwrite' => $overwrite,
             ]
         );
@@ -234,7 +234,7 @@ class Client
     }
 
     /**
-     * Update an item
+     * Update an item.
      *
      * @param string $itemId    Id of the item
      * @param array  $data      New data
@@ -248,7 +248,7 @@ class Client
         $parameters = $this->buildHttpQuery(
             [
                 'forceSync' => $forceSync,
-                'notify' => $notify
+                'notify'    => $notify,
             ]
         );
 
@@ -256,7 +256,7 @@ class Client
     }
 
     /**
-     * Delete an item
+     * Delete an item.
      *
      * @param string $itemId        Item id
      * @param bool   $singleversion True it will delete only the specified version rather than all sibling files with the same filename (optional)
@@ -264,12 +264,12 @@ class Client
      *
      * @return array
      */
-    public function deleteItem(string $itemId, bool$singleversion = false, bool $forceSync = false):array
+    public function deleteItem(string $itemId, bool $singleversion = false, bool $forceSync = false):array
     {
         $parameters = $this->buildHttpQuery(
             [
                 'singleversion' => $singleversion,
-                'forceSync' => $forceSync
+                'forceSync'     => $forceSync,
             ]
         );
 
@@ -277,7 +277,7 @@ class Client
     }
 
     /**
-     * Get temporary download URL for an item
+     * Get temporary download URL for an item.
      *
      * @param string $itemId             Item id
      * @param bool   $includeallversions For folder downloads only, includes old versions of files in the folder in the zip when true, current versions only when false (default)
@@ -289,7 +289,7 @@ class Client
         $parameters = $this->buildHttpQuery(
             [
                 'includeallversions' => $includeallversions,
-                'redirect' => false
+                'redirect'           => false,
             ]
         );
 
@@ -297,7 +297,7 @@ class Client
     }
 
     /**
-     * Get contents of and item
+     * Get contents of and item.
      *
      * @param string $itemId             Item id
      * @param bool   $includeallversions $includeallversions For folder downloads only, includes old versions of files in the folder in the zip when true, current versions only when false (default)
@@ -309,7 +309,7 @@ class Client
         $parameters = $this->buildHttpQuery(
             [
                 'includeallversions' => $includeallversions,
-                'redirect' => 'true'
+                'redirect'           => 'true',
             ]
         );
 
@@ -317,7 +317,7 @@ class Client
     }
 
     /**
-     * Get the Chunk Uri to start a file-upload
+     * Get the Chunk Uri to start a file-upload.
      *
      * @param string $method    Upload method (Standard or Streamed)
      * @param string $filename  Name of file
@@ -332,20 +332,20 @@ class Client
     {
         $parameters = $this->buildHttpQuery(
             [
-                'method' => $method,
-                'raw' => false,
-                'fileName' => basename($filename),
-                'fileSize' => filesize($filename),
-                'canResume' => false,
-                'startOver' => false,
-                'unzip' => $unzip,
-                'tool' => 'apiv3',
-                'overwrite' => $overwrite,
-                'title' => basename($filename),
-                'isSend' => false,
-                'responseFormat' => 'json',
-                'notify' => $notify,
-                'clientCreatedDateUTC' => filectime($filename),
+                'method'                => $method,
+                'raw'                   => false,
+                'fileName'              => basename($filename),
+                'fileSize'              => filesize($filename),
+                'canResume'             => false,
+                'startOver'             => false,
+                'unzip'                 => $unzip,
+                'tool'                  => 'apiv3',
+                'overwrite'             => $overwrite,
+                'title'                 => basename($filename),
+                'isSend'                => false,
+                'responseFormat'        => 'json',
+                'notify'                => $notify,
+                'clientCreatedDateUTC'  => filectime($filename),
                 'clientModifiedDateUTC' => filemtime($filename),
             ]
         );
@@ -354,7 +354,7 @@ class Client
     }
 
     /**
-     * Upload a file using a single HTTP POST
+     * Upload a file using a single HTTP POST.
      *
      * @param string $filename  Name of file
      * @param string $folderId  Id of the parent folder
@@ -364,28 +364,28 @@ class Client
      *
      * @return string
      */
-    public function uploadFileStandard(string $filename, string $folderId, bool $unzip = false, bool$overwrite = true, bool $notify = true):string
+    public function uploadFileStandard(string $filename, string $folderId, bool $unzip = false, bool $overwrite = true, bool $notify = true):string
     {
         $chunkUri = $this->getChunkUri('standard', $filename, $folderId, $unzip, $overwrite, $notify);
 
         $response = $this->client->request(
-            CLIENT::POST,
+            self::POST,
             $chunkUri['ChunkUri'],
             [
                 'multipart' => [
                     [
-                        'name' => 'File1',
-                        'contents' => fopen($filename, 'r')
+                        'name'     => 'File1',
+                        'contents' => fopen($filename, 'r'),
                     ],
-                ]
+                ],
             ]
         );
 
-        return (string)$response->getBody();
+        return (string) $response->getBody();
     }
 
     /**
-     * Get Thumbnail of an item
+     * Get Thumbnail of an item.
      *
      * @param string $itemId Item id
      * @param int    $size   Thumbnail size: THUMBNAIL_SIZE_M or THUMBNAIL_SIZE_L (optional)
@@ -396,8 +396,8 @@ class Client
     {
         $parameters = $this->buildHttpQuery(
             [
-                'size' => $size,
-                'redirect' => false
+                'size'     => $size,
+                'redirect' => false,
             ]
         );
 
@@ -405,7 +405,7 @@ class Client
     }
 
     /**
-     * Get browser link for an item
+     * Get browser link for an item.
      *
      * @param string $itemId Item id
      *
@@ -417,7 +417,7 @@ class Client
     }
 
     /**
-     * Share Share for external user
+     * Share Share for external user.
      *
      * @param array $options Share options
      * @param bool  $notify  Indicates whether user will be notified if item is downloaded (optional)
@@ -429,7 +429,7 @@ class Client
         $parameters = $this->buildHttpQuery(
             [
                 'notify' => $notify,
-                'direct' => true
+                'direct' => true,
             ]
         );
 
@@ -437,7 +437,7 @@ class Client
     }
 
     /**
-     * Build API uri
+     * Build API uri.
      *
      * @param string $endpoint API endpoint
      *
@@ -449,15 +449,15 @@ class Client
     }
 
     /**
-     * Make a request to the API
+     * Make a request to the API.
      *
      * @param string $method   HTTP Methos (CLIENT::GET, CLIENT::POST, CLIENT::PATCH or CLIENT::DELETE)
      * @param string $endpoint API endpoint
      * @param null   $json     POST body (optional)
      *
-     * @return mixed|string|array
-     *
      * @throws Exception
+     *
+     * @return mixed|string|array
      */
     protected function request(string $method, string $endpoint, $json = null)
     {
@@ -470,12 +470,13 @@ class Client
             throw $this->determineException($exception);
         }
 
-        $body = (string)$response->getBody();
+        $body = (string) $response->getBody();
+
         return $this->jsonValidator($body) ? json_decode($body, true) : $body;
     }
 
     /**
-     * Shorthand for GET-request
+     * Shorthand for GET-request.
      *
      * @param string $endpoint API endpoint
      *
@@ -483,11 +484,11 @@ class Client
      */
     protected function get(string $endpoint)
     {
-        return $this->request(Client::GET, $endpoint);
+        return $this->request(self::GET, $endpoint);
     }
 
     /**
-     * Shorthand for POST-request
+     * Shorthand for POST-request.
      *
      * @param string $endpoint API endpoint
      * @param null   $json     POST body (optional)
@@ -496,11 +497,11 @@ class Client
      */
     protected function post(string $endpoint, $json = null)
     {
-        return $this->request(Client::POST, $endpoint, $json);
+        return $this->request(self::POST, $endpoint, $json);
     }
 
     /**
-     * Shorthand for PATCH-request
+     * Shorthand for PATCH-request.
      *
      * @param string $endpoint API endpoint
      * @param null   $json     POST body (optional)
@@ -509,11 +510,11 @@ class Client
      */
     protected function patch(string $endpoint, $json = null)
     {
-        return $this->request(Client::PATCH, $endpoint, $json);
+        return $this->request(self::PATCH, $endpoint, $json);
     }
 
     /**
-     * Shorthand for DELETE-request
+     * Shorthand for DELETE-request.
      *
      * @param string $endpoint API endpoint
      *
@@ -521,11 +522,11 @@ class Client
      */
     protected function delete(string $endpoint)
     {
-        return $this->request(Client::DELETE, $endpoint);
+        return $this->request(self::DELETE, $endpoint);
     }
 
     /**
-     * Handle ClientException
+     * Handle ClientException.
      *
      * @param ClientException $exception ClientException
      *
@@ -541,7 +542,7 @@ class Client
     }
 
     /**
-     * Build HTTP query
+     * Build HTTP query.
      *
      * @param array $parameters Query parameters
      *
@@ -555,6 +556,7 @@ class Client
                     if (!is_bool($parameter)) {
                         return $parameter;
                     }
+
                     return $parameter ? 'true' : 'false';
                 },
                 $parameters
@@ -563,7 +565,7 @@ class Client
     }
 
     /**
-     * Validate JSON
+     * Validate JSON.
      *
      * @param null $data JSON variable
      *
@@ -573,7 +575,8 @@ class Client
     {
         if (!empty($data)) {
             @json_decode($data);
-            return (json_last_error() === JSON_ERROR_NONE);
+
+            return json_last_error() === JSON_ERROR_NONE;
         }
 
         return false;

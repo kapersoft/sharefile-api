@@ -6,15 +6,15 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Class BadRequest
+ * Class BadRequest.
  *
  * @category GitHub_Repositories
- * @package  Kapersoft\ShareFile
+ *
  * @author   Jan Willem Kaper <kapersoft@gmail.com>
  * @license  MIT (see License.txt)
+ *
  * @link     http://github.com/kapersoft/sharefile-api
  */
-
 class BadRequest extends Exception
 {
     /**
@@ -37,7 +37,6 @@ class BadRequest extends Exception
      * @var string|null
      */
     public $message;
-
 
     /**
      * BadRequest constructor.
@@ -66,7 +65,6 @@ class BadRequest extends Exception
             $this->code = $body['code'];
         }
 
-        parent::__construct('[' . $this->code . '] ' . $this->message, $this->httpCode);
+        parent::__construct('['.$this->code.'] '.$this->message, $this->httpCode);
     }
-
 }
