@@ -55,6 +55,8 @@ class TestShareFileApi extends TestCase
      */
     public function it_can_be_instantiated() // @codingStandardsIgnoreLine
     {
+        $this->checkCredentials();
+
         $client = new Client(
             HOSTNAME,
             CLIENT_ID,
@@ -75,6 +77,8 @@ class TestShareFileApi extends TestCase
      */
     public function it_can_throw_exception_using_wrong_hostname() // @codingStandardsIgnoreLine
     {
+        $this->checkCredentials();
+
         $this->expectException(ConnectException::class);
 
         $client = new Client(
@@ -95,6 +99,8 @@ class TestShareFileApi extends TestCase
      */
     public function it_can_throw_exception_using_wrong_api_details() // @codingStandardsIgnoreLine
     {
+        $this->checkCredentials();
+
         $this->expectException(ClientException::class);
 
         $client = new Client(
@@ -115,6 +121,8 @@ class TestShareFileApi extends TestCase
      */
     public function it_can_throw_exception_using_wrong_password() // @codingStandardsIgnoreLine
     {
+        $this->checkCredentials();
+
         $this->expectException(ClientException::class);
 
         $client = new Client(
@@ -614,12 +622,26 @@ class TestShareFileApi extends TestCase
     }
 
     /**
+     * Check ShareFile credentials in config file.
+     *
+     * @return void
+     */
+    protected function checkCredentials()
+    {
+        if ($this->mEmpty(HOSTNAME, CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD)) {
+            $this->markTestSkipped("No ShareFile credentials are found. Fill in your ShareFile credentials under section <PHP> in the file phpunit.xml.dist in the project root folder.");
+        }
+    }
+
+    /**
      * Get Client.
      *
      * @return Client
      */
-    private function getClient():Client
+    protected function getClient():Client
     {
+        $this->checkCredentials();
+
         if ($this->client == null) {
             $this->client = new Client(
                 HOSTNAME,
@@ -640,7 +662,7 @@ class TestShareFileApi extends TestCase
      *
      * @return bool
      */
-    private function mEmpty(...$args): bool
+    protected function mEmpty(...$args): bool
     {
         $arguments = func_get_args();
         foreach ($arguments as $argument) {
@@ -660,7 +682,7 @@ class TestShareFileApi extends TestCase
      *
      * @return vfsStreamFile
      */
-    private function createMockFile(string $filename, string $contents = ''):vfsStreamFile
+    protected function createMockFile(string $filename, string $contents = ''):vfsStreamFile
     {
         return vfsStream::newFile($filename)->at($this->vfsRoot)->withContent($contents);
     }
@@ -670,7 +692,7 @@ class TestShareFileApi extends TestCase
      *
      * @return vfsStreamFile
      */
-    private function createMockImage(string $filename):vfsStreamFile
+    protected function createMockImage(string $filename):vfsStreamFile
     {
         // Create mock image
         $mockImage = imagecreatetruecolor(300, 100);

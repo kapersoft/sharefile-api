@@ -28,10 +28,10 @@
         <log type="coverage-clover" target="build/logs/clover.xml"/>
     </logging>
     <php>
-        <const name="HOSTNAME" value="hostname.sharefile.com"/>
-        <const name="CLIENT_ID" value="api_client_id"/>
-        <const name="CLIENT_SECRET" value="api_secret"/>
-        <const name="USERNAME" value="john@doe.com"/>
-        <const name="PASSWORD" value="password"/>
+        <const name="HOSTNAME" value=""/>
+        <const name="CLIENT_ID" value=""/>
+        <const name="CLIENT_SECRET" value=""/>
+        <const name="USERNAME" value=""/>
+        <const name="PASSWORD" value=""/>
     </php>
 </phpunit>
