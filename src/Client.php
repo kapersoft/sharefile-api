@@ -3,11 +3,11 @@
 namespace Kapersoft\ShareFile;
 
 use Exception;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\HandlerStack;
 use Kapersoft\Sharefile\Exceptions\BadRequest;
-use GuzzleHttp\Handler\MockHandler;
 
 /**
  * Class Client.
@@ -65,7 +65,7 @@ class Client
     {
         $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
 
-        if (!isset($response['access_token']) || !isset($response['subdomain'])) {
+        if (! isset($response['access_token']) || ! isset($response['subdomain'])) {
             throw new Exception("Incorrect response from Authentication: 'access_token' or 'subdomain' is missing.");
         }
 
@@ -547,7 +547,7 @@ class Client
         return http_build_query(
             array_map(
                 function ($parameter) {
-                    if (!is_bool($parameter)) {
+                    if (! is_bool($parameter)) {
                         return $parameter;
                     }
 
@@ -567,7 +567,7 @@ class Client
      */
     protected function jsonValidator($data = null):bool
     {
-        if (!empty($data)) {
+        if (! empty($data)) {
             @json_decode($data);
 
             return json_last_error() === JSON_ERROR_NONE;
