@@ -561,7 +561,7 @@ class Client
     /**
      * Validate JSON.
      *
-     * @param mixex|string|array $data JSON variable
+     * @param mixed|string|array $data JSON variable
      *
      * @return bool
      */
