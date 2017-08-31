@@ -2,45 +2,44 @@
 
 namespace Kapersoft\Sharefile\Test;
 
-use PHPUnit\Framework\TestCase;
-use Kapersoft\Sharefile\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use Kapersoft\Sharefile\Client;
 use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\TestCase;
 
 /**
- * Class TestClient
+ * Class TestClient.
  *
  * @category GitHub_Repositories
- * @package  Kapersoft\ShareFile
+ *
  * @author   Jan Willem Kaper <kapersoft@gmail.com>
  * @license  MIT (see License.txt)
+ *
  * @link     http://github.com/kapersoft/sharefile-api
  */
-
 class TestClient extends TestCase
 {
-
     /**
-     * MockClient history container
+     * MockClient history container.
      *
      * @var array
      */
     protected $container;
 
     /**
-     * Virtual FS root
+     * Virtual FS root.
      *
      * @var \org\bovigo\vfs\vfsStream
      * */
     protected $vfsRoot;
 
     /**
-     * Setup Test
+     * Setup Test.
      *
      * @return void
      */
@@ -50,7 +49,7 @@ class TestClient extends TestCase
     }
 
     /**
-     * Test for it_can_be_instantiated
+     * Test for it_can_be_instantiated.
      *
      * @test
      *
@@ -59,7 +58,7 @@ class TestClient extends TestCase
     public function it_can_be_instantiated() // @codingStandardsIgnoreLine
     {
         $mockHandler = new MockHandler(
-            [ new Response(200, [], json_encode(['access_token' => 'my_access_code', 'subdomain' => 'subdomain'])) ]
+            [new Response(200, [], json_encode(['access_token' => 'my_access_code', 'subdomain' => 'subdomain']))]
         );
 
         $client = new Client(
@@ -76,7 +75,7 @@ class TestClient extends TestCase
     }
 
     /**
-     * Test for it_can_throw_an_exception
+     * Test for it_can_throw_an_exception.
      *
      * @test
      *
@@ -85,7 +84,7 @@ class TestClient extends TestCase
     public function it_can_throw_an_exception() // @codingStandardsIgnoreLine
     {
         $mockHandler = new MockHandler(
-            [ new Response(400) ]
+            [new Response(400)]
         );
 
         $this->expectException(\Exception::class);
@@ -103,7 +102,7 @@ class TestClient extends TestCase
     }
 
     /**
-     * Test for it_can_handle_an_incorrect_authentication_response
+     * Test for it_can_handle_an_incorrect_authentication_response.
      *
      * @test
      *
@@ -112,7 +111,7 @@ class TestClient extends TestCase
     public function it_can_handle_an_incorrect_authentication_response() // @codingStandardsIgnoreLine
     {
         $mockHandler = new MockHandler(
-            [ new Response(200, [], json_encode([])) ]
+            [new Response(200, [], json_encode([]))]
         );
 
         $this->expectException(\Exception::class);
@@ -129,7 +128,7 @@ class TestClient extends TestCase
     }
 
     /**
-     * Test for it_can_throw_an_client_exception
+     * Test for it_can_throw_an_client_exception.
      *
      * @test
      *
@@ -139,7 +138,7 @@ class TestClient extends TestCase
     {
         $mockHandler = new MockHandler(
             [
-                new ClientException('Could not resolve host: hostname', new Request('POST', 'hostname'), new response(404))
+                new ClientException('Could not resolve host: hostname', new Request('POST', 'hostname'), new response(404)),
             ]
         );
 
@@ -158,7 +157,7 @@ class TestClient extends TestCase
     }
 
     /**
-     * Test for it_can_get_user
+     * Test for it_can_get_user.
      *
      * @test
      *
@@ -171,13 +170,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getUser();
 
-        $this->assertSame('GET', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Users()', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Users()', (string) $this->getLastRequest()->getUri());
         $this->assertSame($response, $expectedResponse);
     }
 
     /**
-     * Test for it_can_create_folder_and_overwrite
+     * Test for it_can_create_folder_and_overwrite.
      *
      * @test
      *
@@ -190,14 +189,14 @@ class TestClient extends TestCase
 
         $response = $mockClient->createFolder(Client::FOLDER_HOME, 'My Folder', 'My Description', true);
 
-        $this->assertSame('POST', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(home)/Folder?overwrite=true&passthrough=false', (string)$this->getLastRequest()->getUri());
-        $this->assertSame(json_encode(['name' => 'My Folder', 'description' => 'My Description']), (string)$this->getLastRequest()->getBody());
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(home)/Folder?overwrite=true&passthrough=false', (string) $this->getLastRequest()->getUri());
+        $this->assertSame(json_encode(['name' => 'My Folder', 'description' => 'My Description']), (string) $this->getLastRequest()->getBody());
         $this->assertSame($response, $expectedResponse);
     }
 
     /**
-     * Test for it_can_create_folder_not_overwrite
+     * Test for it_can_create_folder_not_overwrite.
      *
      * @test
      *
@@ -210,14 +209,14 @@ class TestClient extends TestCase
 
         $response = $mockClient->createFolder(Client::FOLDER_HOME, 'My Folder', 'My Description', false);
 
-        $this->assertSame('POST', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(home)/Folder?overwrite=false&passthrough=false', (string)$this->getLastRequest()->getUri());
-        $this->assertSame(json_encode(['name' => 'My Folder', 'description' => 'My Description']), (string)$this->getLastRequest()->getBody());
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(home)/Folder?overwrite=false&passthrough=false', (string) $this->getLastRequest()->getUri());
+        $this->assertSame(json_encode(['name' => 'My Folder', 'description' => 'My Description']), (string) $this->getLastRequest()->getBody());
         $this->assertSame($response, $expectedResponse);
     }
 
     /**
-     * Test for it_can_get_an_item_without_children
+     * Test for it_can_get_an_item_without_children.
      *
      * @test
      *
@@ -230,14 +229,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getItemById(Client::FOLDER_TOP, false);
 
-        $this->assertSame('GET', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(top)', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(top)', (string) $this->getLastRequest()->getUri());
         $this->assertSame($response, $expectedResponse);
-
     }
 
     /**
-     * Test for it_can_get_an_item_with_children
+     * Test for it_can_get_an_item_with_children.
      *
      * @test
      *
@@ -250,13 +248,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getItemBreadcrumps(Client::FOLDER_HOME);
 
-        $this->assertSame('GET', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(home)/Breadcrumbs', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(home)/Breadcrumbs', (string) $this->getLastRequest()->getUri());
         $this->assertSame($response, $expectedResponse);
     }
 
     /**
-     * Test for it_can_get_item_by_path
+     * Test for it_can_get_item_by_path.
      *
      * @test
      *
@@ -269,13 +267,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getItemByPath('/Personal Folders/picture.jpg');
 
-        $this->assertSame('GET', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items/ByPath?Path=/Personal%20Folders/picture.jpg', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items/ByPath?Path=/Personal%20Folders/picture.jpg', (string) $this->getLastRequest()->getUri());
         $this->assertSame($response, $expectedResponse);
     }
 
     /**
-     * Test for it_can_get_item_breadcrumps
+     * Test for it_can_get_item_breadcrumps.
      *
      * @test
      *
@@ -288,13 +286,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getItemById(Client::FOLDER_TOP, true);
 
-        $this->assertSame('GET', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(top)?$expand=Children', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(top)?$expand=Children', (string) $this->getLastRequest()->getUri());
         $this->assertSame($response, $expectedResponse);
     }
 
     /**
-     * Test for it_can_copy_and_not_overwrite
+     * Test for it_can_copy_and_not_overwrite.
      *
      * @test
      *
@@ -307,14 +305,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->copyItem('target_id', 'file_id');
 
-        $this->assertSame('POST', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(file_id)/Copy?targetid=target_id&overwrite=false', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(file_id)/Copy?targetid=target_id&overwrite=false', (string) $this->getLastRequest()->getUri());
         $this->assertSame($response, $expectedResponse);
     }
 
-
     /**
-     * Test for it_can_copy_and_overwrite
+     * Test for it_can_copy_and_overwrite.
      *
      * @test
      *
@@ -327,13 +324,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->copyItem('target_id', 'file_id', true);
 
-        $this->assertSame('POST', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(file_id)/Copy?targetid=target_id&overwrite=true', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(file_id)/Copy?targetid=target_id&overwrite=true', (string) $this->getLastRequest()->getUri());
         $this->assertSame($response, $expectedResponse);
     }
 
     /**
-     * Test for it_can_update_an_item
+     * Test for it_can_update_an_item.
      *
      * @test
      *
@@ -347,13 +344,13 @@ class TestClient extends TestCase
         $data = ['Name' => 'picture.jpg', 'Description' => 'Best selfie ever!', 'FileName' => 'picture.jpg'];
         $response = $mockClient->updateItem('item_id', $data);
 
-        $this->assertSame('PATCH', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(item_id)?forceSync=true&notify=true', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('PATCH', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(item_id)?forceSync=true&notify=true', (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
     /**
-     * Test for it_can_delete_an_item
+     * Test for it_can_delete_an_item.
      *
      * @test
      *
@@ -366,13 +363,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->deleteItem('folder_id');
 
-        $this->assertSame('DELETE', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(folder_id)?singleversion=false&forceSync=false', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('DELETE', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(folder_id)?singleversion=false&forceSync=false', (string) $this->getLastRequest()->getUri());
         $this->assertSame($response, $expectedResponse);
     }
 
     /**
-     * Test for it_can_get_download_url_of_an_item
+     * Test for it_can_get_download_url_of_an_item.
      *
      * @test
      *
@@ -385,13 +382,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getItemDownloadUrl('file_id');
 
-        $this->assertSame('GET', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(file_id)/Download?includeallversions=false&redirect=false', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(file_id)/Download?includeallversions=false&redirect=false', (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
     /**
-     * Test for it_can_get_contents_of_an_item
+     * Test for it_can_get_contents_of_an_item.
      *
      * @test
      *
@@ -404,13 +401,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getItemContents('file_id');
 
-        $this->assertSame('GET', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(file_id)/Download?includeallversions=false&redirect=true', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(file_id)/Download?includeallversions=false&redirect=true', (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
     /**
-     * Test for it_can_get_chunk_uri
+     * Test for it_can_get_chunk_uri.
      *
      * @test
      *
@@ -424,14 +421,14 @@ class TestClient extends TestCase
 
         $response = $mockClient->getChunkUri('standard', $vfsFile->url(), 'folder_id');
 
-        $this->assertSame('POST', (string)$this->getLastRequest()->getMethod());
-        $expectedUrl = 'https://subdomain.sf-api.com/sf/v3/Items(folder_id)/Upload?method=standard&raw=false&fileName=textfile.txt&fileSize=24&canResume=false&startOver=false&unzip=false&tool=apiv3&overwrite=true&title=textfile.txt&isSend=false&responseFormat=json&notify=true&clientCreatedDateUTC=' . filectime($vfsFile->url()) . '&clientModifiedDateUTC=' . filemtime($vfsFile->url());
-        $this->assertSame($expectedUrl, (string)$this->getLastRequest()->getUri());
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $expectedUrl = 'https://subdomain.sf-api.com/sf/v3/Items(folder_id)/Upload?method=standard&raw=false&fileName=textfile.txt&fileSize=24&canResume=false&startOver=false&unzip=false&tool=apiv3&overwrite=true&title=textfile.txt&isSend=false&responseFormat=json&notify=true&clientCreatedDateUTC='.filectime($vfsFile->url()).'&clientModifiedDateUTC='.filemtime($vfsFile->url());
+        $this->assertSame($expectedUrl, (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
     /**
-     * Test for it_can_upload_an_item_using_http_post
+     * Test for it_can_upload_an_item_using_http_post.
      *
      * @test
      *
@@ -446,7 +443,7 @@ class TestClient extends TestCase
         $mockResponse = [
             new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain'])),
             new Response(200, [], json_encode(['ChunkUri' => 'https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id'])),
-            new Response(200, [], $expectedResponse)
+            new Response(200, [], $expectedResponse),
         ];
 
         // Create mockHandler
@@ -467,13 +464,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->uploadFileStandard($vfsFile->url(), 'folder_id');
 
-        $this->assertSame('POST', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id', (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
     /**
-     * Test for it_can_download_a_thumbnail
+     * Test for it_can_download_a_thumbnail.
      *
      * @test
      *
@@ -486,13 +483,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getThumbnailUrl('item_id');
 
-        $this->assertSame('GET', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(item_id)/Thumbnail?size=75&redirect=false', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(item_id)/Thumbnail?size=75&redirect=false', (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
     /**
-     * Test for it_can_get_a_web_app_link
+     * Test for it_can_get_a_web_app_link.
      *
      * @test
      *
@@ -505,14 +502,13 @@ class TestClient extends TestCase
 
         $response = $mockClient->getWebAppLink('item_id');
 
-        $this->assertSame('POST', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(item_id)/WebAppLink', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(item_id)/WebAppLink', (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
-
     /**
-     * Test for it_can_create_a_share
+     * Test for it_can_create_a_share.
      *
      * @test
      *
@@ -523,16 +519,16 @@ class TestClient extends TestCase
         $expectedResponse = ['Uri' => 'https://subdomain.sharefile.com/d-shareId'];
         $mockClient = $this->getMockClient($expectedResponse);
 
-        $options = ['ShareType' => 'Send', 'Title' => 'My Title', 'Items' => [ ['Id' => 'item_id'] ] ];
+        $options = ['ShareType' => 'Send', 'Title' => 'My Title', 'Items' => [['Id' => 'item_id']]];
         $response = $mockClient->createShare($options);
 
-        $this->assertSame('POST', (string)$this->getLastRequest()->getMethod());
-        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Shares?notify=false&direct=true', (string)$this->getLastRequest()->getUri());
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Shares?notify=false&direct=true', (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
     /**
-     * Create a mock file
+     * Create a mock file.
      *
      * @param string $filename Filename
      * @param string $contents Contents (optional)
@@ -545,10 +541,11 @@ class TestClient extends TestCase
     }
 
     /**
-     * Get mock Guzzle client
+     * Get mock Guzzle client.
      *
      * @param $responseBody
      * @param array $responseHeaders
+     *
      * @return Client
      */
     private function getMockClient($responseBody, array $responseHeaders = []): Client
@@ -560,7 +557,7 @@ class TestClient extends TestCase
 
         $mockResponse = [
             new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain'])),
-            new Response(200, $responseHeaders, $responseBody)
+            new Response(200, $responseHeaders, $responseBody),
         ];
 
         // Create mockHandler with history container
@@ -581,7 +578,7 @@ class TestClient extends TestCase
     }
 
     /**
-     * Get Last request from mock Guzzle client
+     * Get Last request from mock Guzzle client.
      *
      * @return Request
      */
