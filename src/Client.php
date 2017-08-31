@@ -34,26 +34,18 @@ class Client
     public $client;
 
     /**
-     *  HTTP methods.
-     */
-    private const GET = 'GET';
-    private const POST = 'POST';
-    private const PATCH = 'PATCH';
-    private const DELETE = 'DELETE';
-
-    /**
      * Thumbnail size.
      */
-    public const THUMBNAIL_SIZE_M = 75;
-    public const THUMBNAIL_SIZE_L = 600;
+    const THUMBNAIL_SIZE_M = 75;
+    const THUMBNAIL_SIZE_L = 600;
 
     /*
      * ShareFile Folder
      */
-    public const FOLDER_TOP = 'top';
-    public const FOLDER_HOME = 'home';
-    public const FOLDER_FAVORITES = 'favorites';
-    public const FOLDER_ALLSHARED = 'allshared';
+    const FOLDER_TOP = 'top';
+    const FOLDER_HOME = 'home';
+    const FOLDER_FAVORITES = 'favorites';
+    const FOLDER_ALLSHARED = 'allshared';
 
     /**
      * Client constructor.
@@ -369,7 +361,7 @@ class Client
         $chunkUri = $this->getChunkUri('standard', $filename, $folderId, $unzip, $overwrite, $notify);
 
         $response = $this->client->request(
-            self::POST,
+            'POST',
             $chunkUri['ChunkUri'],
             [
                 'multipart' => [
@@ -451,7 +443,7 @@ class Client
     /**
      * Make a request to the API.
      *
-     * @param string $method   HTTP Methos (CLIENT::GET, CLIENT::POST, CLIENT::PATCH or CLIENT::DELETE)
+     * @param string $method   HTTP Method
      * @param string $endpoint API endpoint
      * @param null   $json     POST body (optional)
      *
@@ -484,7 +476,7 @@ class Client
      */
     protected function get(string $endpoint)
     {
-        return $this->request(self::GET, $endpoint);
+        return $this->request('GET', $endpoint);
     }
 
     /**
@@ -497,7 +489,7 @@ class Client
      */
     protected function post(string $endpoint, $json = null)
     {
-        return $this->request(self::POST, $endpoint, $json);
+        return $this->request('POST', $endpoint, $json);
     }
 
     /**
@@ -510,7 +502,7 @@ class Client
      */
     protected function patch(string $endpoint, $json = null)
     {
-        return $this->request(self::PATCH, $endpoint, $json);
+        return $this->request('PATCH', $endpoint, $json);
     }
 
     /**
@@ -522,7 +514,7 @@ class Client
      */
     protected function delete(string $endpoint)
     {
-        return $this->request(self::DELETE, $endpoint);
+        return $this->request('DELETE', $endpoint);
     }
 
     /**
