@@ -2,13 +2,13 @@
 
 namespace Kapersoft\Sharefile\Test;
 
+use org\bovigo\vfs\vfsStream;
+use Kapersoft\Sharefile\Client;
+use PHPUnit\Framework\TestCase;
+use org\bovigo\vfs\vfsStreamFile;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
-use Kapersoft\Sharefile\Client;
 use Kapersoft\Sharefile\Exceptions\BadRequest;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamFile;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Class TestClient.
@@ -629,7 +629,7 @@ class TestShareFileApi extends TestCase
     protected function checkCredentials()
     {
         if ($this->mEmpty(HOSTNAME, CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD)) {
-            $this->markTestSkipped("No ShareFile credentials are found. Fill in your ShareFile credentials under section <PHP> in the file phpunit.xml.dist in the project root folder.");
+            $this->markTestSkipped('No ShareFile credentials are found. Fill in your ShareFile credentials under section <PHP> in the file phpunit.xml.dist in the project root folder.');
         }
     }
 
