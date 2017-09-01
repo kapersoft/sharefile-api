@@ -563,7 +563,7 @@ class TestShareFileApi extends TestCase
         $response = $this->getClient()->getItemAccessControls($itemId, $userId);
 //        print_r($response);
 
-        $expectedId = 'principalid=' . $userId . ',itemid=' . $itemId;
+        $expectedId = 'principalid='.$userId.',itemid='.$itemId;
         $this->assertEquals($expectedId, $response['Id']);
         $this->assertEquals('ShareFile.Api.Models.AccessControl', $response['odata.type']);
     }
@@ -588,7 +588,7 @@ class TestShareFileApi extends TestCase
         $this->assertGreaterThan('0', $response['odata.count']);
         $this->assertGreaterThan('0', count($response['value']));
         $this->assertEquals('ShareFile.Api.Models.AccessControl', $response['value'][0]['odata.type']);
-        $this->assertContains('itemid=' . $itemId, $response['value'][0]['Id']);
+        $this->assertContains('itemid='.$itemId, $response['value'][0]['Id']);
     }
 
     /**
