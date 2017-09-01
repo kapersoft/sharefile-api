@@ -545,7 +545,7 @@ class Client
      */
     protected function determineException(ClientException $exception): Exception
     {
-        if (in_array($exception->getResponse()->getStatusCode(), [400, 404, 409])) {
+        if (in_array($exception->getResponse()->getStatusCode(), [400, 403, 404, 409])) {
             return new BadRequest($exception->getResponse());
         }
 
