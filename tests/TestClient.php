@@ -358,7 +358,7 @@ class TestClient extends TestCase
      */
     public function it_can_delete_an_item() // @codingStandardsIgnoreLine
     {
-        $expectedResponse = [''];
+        $expectedResponse = '';
         $mockClient = $this->getMockClient($expectedResponse);
 
         $response = $mockClient->deleteItem('folder_id');

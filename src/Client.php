@@ -256,9 +256,9 @@ class Client
      * @param bool   $singleversion True it will delete only the specified version rather than all sibling files with the same filename (optional)
      * @param bool   $forceSync     True will block the operation from taking place asynchronously (optional)
      *
-     * @return array
+     * @return string
      */
-    public function deleteItem(string $itemId, bool $singleversion = false, bool $forceSync = false):array
+    public function deleteItem(string $itemId, bool $singleversion = false, bool $forceSync = false):string
     {
         $parameters = $this->buildHttpQuery(
             [
