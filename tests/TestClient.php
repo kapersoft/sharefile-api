@@ -560,9 +560,9 @@ class TestClient extends TestCase
             'odata.cound' => 1,
             'value' => [
                 [
-                    'Id' => 'principalid=userId,itemid=itemId'
-                ]
-            ]
+                    'Id' => 'principalid=userId,itemid=itemId',
+                ],
+            ],
         ];
 
         $mockClient = $this->getMockClient($expectedResponse);
