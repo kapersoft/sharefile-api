@@ -158,7 +158,7 @@ class TestShareFileApi extends TestCase
     public function it_can_get_user() // @codingStandardsIgnoreLine
     {
         $response = $this->getClient()->getUser();
-        // print_r($response);
+//        print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.AccountUser', $response['odata.type']);
         $this->assertArrayHasKey('Email', $response);
@@ -179,7 +179,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->getItemById($itemId, false);
-        // print_r($response);
+//        print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.Folder', $response['odata.type']);
         $this->assertEquals($itemId, $response['Id']);
@@ -215,7 +215,7 @@ class TestShareFileApi extends TestCase
      *
      * @return void
      */
-    public function it_can_get_item_breadcrumps() // @codingStandardsIgnoreLineomposccomcfccfffffffffffffffffffdfdfdffdffddf
+    public function it_can_get_item_breadcrumps() // @codingStandardsIgnoreLine
     {
         $itemId = '';
         if ($this->mEmpty($itemId)) {
@@ -269,7 +269,7 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->getItemByPath($itemPath);
-        // print_r($response);
+//        print_r($response);
 
         $this->assertEquals('ShareFile.Api.Models.File', $response['odata.type']);
     }
@@ -337,9 +337,8 @@ class TestShareFileApi extends TestCase
         }
 
         $response = $this->getClient()->deleteItem($itemId);
-        // print_r($response);
 
-        $this->assertEquals([], $response);
+        $this->assertEmpty($response);
     }
 
     /**
@@ -544,6 +543,52 @@ class TestShareFileApi extends TestCase
             filter_var($response['Uri'], FILTER_VALIDATE_URL) !== false,
             'Response is not a valid URL.'
         );
+    }
+
+    /**
+     * Test for it_can_get_items_access_control_with_user_id.
+     *
+     * @test
+     *
+     * @return void
+     */
+    public function it_can_get_items_access_control_with_user_id() // @codingStandardsIgnoreLine
+    {
+        $itemId = '';
+        $userId = '';
+        if ($this->mEmpty($itemId, $userId)) {
+            $this->markTestSkipped('Fill in $itemId and $userId to complete this test.');
+        }
+
+        $response = $this->getClient()->getItemAccessControls($itemId, $userId);
+//        print_r($response);
+
+        $expectedId = 'principalid=' . $userId . ',itemid=' . $itemId;
+        $this->assertEquals($expectedId, $response['Id']);
+        $this->assertEquals('ShareFile.Api.Models.AccessControl', $response['odata.type']);
+    }
+
+    /**
+     * Test for it_can_get_items_access_control_without_user_id.
+     *
+     * @test
+     *
+     * @return void
+     */
+    public function it_can_get_items_access_control_without_user_id() // @codingStandardsIgnoreLine
+    {
+        $itemId = '';
+        if ($this->mEmpty($itemId)) {
+            $this->markTestSkipped('Fill in $itemId and $userId to complete this test.');
+        }
+
+        $response = $this->getClient()->getItemAccessControls($itemId);
+//        print_r($response);
+
+        $this->assertGreaterThan('0', $response['odata.count']);
+        $this->assertGreaterThan('0', count($response['value']));
+        $this->assertEquals('ShareFile.Api.Models.AccessControl', $response['value'][0]['odata.type']);
+        $this->assertContains('itemid=' . $itemId, $response['value'][0]['Id']);
     }
 
     /**

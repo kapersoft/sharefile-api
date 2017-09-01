@@ -190,7 +190,7 @@ class Client
         if (empty($itemId)) {
             return $this->get("Items/ByPath?Path={$path}");
         } else {
-            return $this->get("Items($itemId)/ByPath?Path={$path}");
+            return $this->get("Items({$itemId})/ByPath?Path={$path}");
         }
     }
 
@@ -428,6 +428,23 @@ class Client
         );
 
         return $this->post("Shares?{$parameters}", $options);
+    }
+
+    /**
+     * Get AccessControl List for an item.
+     *
+     * @param string $itemId Id of an item
+     * @param string $userId Id of an user
+     *
+     * @return array
+     */
+    public function getItemAccessControls(string $itemId, string $userId = ''):array
+    {
+        if (!empty($userId)) {
+            return $this->get("AccessControls(principalid={$userId},itemid={$itemId})");
+        } else {
+            return $this->get("Items({$itemId})/AccessControls");
+        }
     }
 
     /**

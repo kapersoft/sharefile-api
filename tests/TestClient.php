@@ -528,6 +528,53 @@ class TestClient extends TestCase
     }
 
     /**
+     * Test for it_can_get_access_control_with_user_id.
+     *
+     * @test
+     *
+     * @return void
+     */
+    public function it_can_get_access_control_with_user_id() // @codingStandardsIgnoreLine
+    {
+        $expectedResponse = ['odata.type' => 'ShareFile.Api.Models.File', 'Id' => 'principalid=userId,itemid=itemId'];
+
+        $mockClient = $this->getMockClient($expectedResponse);
+
+        $response = $mockClient->getItemAccessControls('itemId', 'userId');
+
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/AccessControls(principalid=userId,itemid=itemId)', (string) $this->getLastRequest()->getUri());
+        $this->assertSame($expectedResponse, $response);
+    }
+
+    /**
+     * Test for it_can_get_access_control_with_user_id.
+     *
+     * @test
+     *
+     * @return void
+     */
+    public function it_can_get_access_control_without_user_id() // @codingStandardsIgnoreLine
+    {
+        $expectedResponse = [
+            'odata.cound' => 1,
+            'value' => [
+                [
+                    'Id' => 'principalid=userId,itemid=itemId'
+                ]
+            ]
+        ];
+
+        $mockClient = $this->getMockClient($expectedResponse);
+
+        $response = $mockClient->getItemAccessControls('itemId');
+
+        $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(itemId)/AccessControls', (string) $this->getLastRequest()->getUri());
+        $this->assertSame($expectedResponse, $response);
+    }
+
+    /**
      * Create a mock file.
      *
      * @param string $filename Filename
