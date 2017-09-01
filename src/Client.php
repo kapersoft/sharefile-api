@@ -440,7 +440,7 @@ class Client
      */
     public function getItemAccessControls(string $itemId, string $userId = ''):array
     {
-        if (!empty($userId)) {
+        if (! empty($userId)) {
             return $this->get("AccessControls(principalid={$userId},itemid={$itemId})");
         } else {
             return $this->get("Items({$itemId})/AccessControls");
