@@ -8,8 +8,6 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Class BadRequest.
  *
- * @category GitHub_Repositories
- *
  * @author   Jan Willem Kaper <kapersoft@gmail.com>
  * @license  MIT (see License.txt)
  *

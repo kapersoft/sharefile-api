@@ -13,8 +13,6 @@ use Kapersoft\Sharefile\Exceptions\BadRequest;
 /**
  * Class TestClient.
  *
- * @category GitHub_Repositories
- *
  * @author   Jan Willem Kaper <kapersoft@gmail.com>
  * @license  MIT (see License.txt)
  *
