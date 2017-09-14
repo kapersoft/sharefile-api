@@ -6,6 +6,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use org\bovigo\vfs\content\LargeFileContent;
 use org\bovigo\vfs\vfsStream;
 use Kapersoft\Sharefile\Client;
 use PHPUnit\Framework\TestCase;
@@ -434,7 +435,7 @@ class TestClient extends TestCase
      *
      * @return void
      */
-    public function it_can_upload_an_item_using_http_post() // @codingStandardsIgnoreLine
+    public function it_can_upload_an_item_using_single_http_post() // @codingStandardsIgnoreLine
     {
         $vfsFile = $this->createMockFile('textfile.txt', 'The contents of the file');
 
@@ -466,6 +467,51 @@ class TestClient extends TestCase
 
         $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
         $this->assertSame('https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id', (string) $this->getLastRequest()->getUri());
+        $this->assertSame($expectedResponse, $response);
+    }
+
+    /**
+     * Test for it_can_upload_an_item_using_http_post.
+     *
+     * @test
+     *
+     * @return void
+     */
+    public function it_can_upload_an_item_using_multiple_http_posts() // @codingStandardsIgnoreLine
+    {
+
+        $vfsFile = $this->createMockFile('textfile.txt', LargeFileContent::withKilobytes(10));
+
+        // Create response
+        $expectedResponse = 'fo66e8f5-3aa3-405b-8129-f9a749dd4e99';
+        $mockResponse = [
+            new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain'])),
+            new Response(200, [], json_encode(['ChunkUri' => 'https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id'])),
+            new Response(200, [], 'true'),
+            new Response(200, [], $expectedResponse)
+        ];
+
+        // Create mockHandler
+        $this->container = [];
+        $history = Middleware::history($this->container);
+        $mockHandler = HandlerStack::create(new MockHandler($mockResponse));
+        $mockHandler->push($history);
+
+        // Create Client with mockHandler
+        $mockClient = new Client(
+            'hostname',
+            'client_id',
+            'secret',
+            'username',
+            'password',
+            $mockHandler
+        );
+
+        $handle = fopen($vfsFile->url(), 'r');
+        $response = $mockClient->uploadFileStreamed($handle, 'folder_id', 'large_file.txt', false, true, true, 8192);
+
+        $this->assertSame('POST', (string) $this->getLastRequest()->getMethod());
+        $this->assertSame('https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id&index=1&byteOffset=8192&hash=9598acee9824e6a39d1eda8024fd0846&filehash=5795fa7c504e4b99a01644a300e74c66&finish=true', (string) $this->getLastRequest()->getUri());
         $this->assertSame($expectedResponse, $response);
     }
 
@@ -578,11 +624,11 @@ class TestClient extends TestCase
      * Create a mock file.
      *
      * @param string $filename Filename
-     * @param string $contents Contents (optional)
+     * @param mixed  $contents Contents (optional)
      *
      * @return \org\bovigo\vfs\vfsStreamFile
      */
-    private function createMockFile(string $filename, string $contents = '')
+    private function createMockFile(string $filename, $contents = '')
     {
         return vfsStream::newFile($filename)->at($this->vfsRoot)->withContent($contents);
     }

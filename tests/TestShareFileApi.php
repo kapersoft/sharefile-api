@@ -432,6 +432,29 @@ class TestShareFileApi extends TestCase
     }
 
     /**
+     * Test for it_can_upload_an_item_using_http_post.
+     *
+     * @test
+     *
+     * @return void
+     */
+    public function it_can_upload_an_item_using_a_stream() // @codingStandardsIgnoreLine
+    {
+        $filename = '';
+        $folderId = '';
+        if ($this->mEmpty($filename, $folderId)) {
+            $this->markTestSkipped('Fill in $filename and $folderId to complete this test.');
+        }
+
+        $handle = fopen($filename, 'r');
+        $response = $this->getClient()->uploadFileStreamed($handle, $folderId);
+        // print_r($response);
+
+        $this-
+        $this->assertTrue($this->validateGuid($response));
+    }
+
+    /**
      * Test for it_can_update_an_item.
      *
      * @test
@@ -749,4 +772,10 @@ class TestShareFileApi extends TestCase
 
         return $vfsFile;
     }
+
+    protected function validateGuid($value)
+    {
+        return preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/i', $value) !== 0;
+    }
+
 }

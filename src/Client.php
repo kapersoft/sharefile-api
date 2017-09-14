@@ -3,6 +3,7 @@
 namespace Kapersoft\ShareFile;
 
 use Exception;
+use GuzzleHttp\Psr7;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Client as GuzzleClient;
@@ -46,6 +47,11 @@ class Client
     const FOLDER_HOME = 'home';
     const FOLDER_FAVORITES = 'favorites';
     const FOLDER_ALLSHARED = 'allshared';
+
+    /*
+    * Default Chunk Size for uploading files
+    */
+    const DEFAULT_CHUNK_SIZE = 8 * 1024 * 1024; // 8 megabytes
 
     /**
      * Client constructor.
@@ -311,25 +317,25 @@ class Client
     /**
      * Get the Chunk Uri to start a file-upload.
      *
-     * @param string $method    Upload method (Standard or Streamed)
-     * @param string $filename  Name of file
-     * @param string $folderId  Id of the parent folder
-     * @param bool   $unzip     Inidicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
-     * @param bool   $overwrite Indicates whether items with the same name will be overwritten or not (optional)
-     * @param bool   $notify    Indicates whether users will be notified of this upload - based on folder preferences (optional)
+     * @param string   $method    Upload method (Standard or Streamed)
+     * @param string   $filename  Name of file
+     * @param string   $folderId  Id of the parent folder
      * @param bool     $unzip     Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
      * @param bool     $overwrite Indicates whether items with the same name will be overwritten or not (optional)
+     * @param bool     $notify    Indicates whether users will be notified of this upload - based on folder preferences (optional)
+     * @param bool     $raw       Send contents contents directly in the POST body (=true) or send contents in MIME format (=false) (optional)
+     * @param resource $stream    Resource stream of the contents (optional)
      *
      * @return array
      */
-    public function getChunkUri(string $method, string $filename, string $folderId, bool $unzip = false, $overwrite = true, bool $notify = true):array
+    public function getChunkUri(string $method, string $filename, string $folderId, bool $unzip = false, $overwrite = true, bool $notify = true, bool $raw = false, $stream = null):array
     {
         $parameters = $this->buildHttpQuery(
             [
                 'method'                => $method,
-                'raw'                   => false,
+                'raw'                   => $raw,
                 'fileName'              => basename($filename),
-                'fileSize'              => filesize($filename),
+                'fileSize'              => $stream == null ? filesize($filename): fstat($stream)['size'],
                 'canResume'             => false,
                 'startOver'             => false,
                 'unzip'                 => $unzip,
@@ -339,8 +345,8 @@ class Client
                 'isSend'                => false,
                 'responseFormat'        => 'json',
                 'notify'                => $notify,
-                'clientCreatedDateUTC'  => filectime($filename),
-                'clientModifiedDateUTC' => filemtime($filename),
+                'clientCreatedDateUTC'  => $stream == null ? filectime($filename) : fstat($stream)['ctime'],
+                'clientModifiedDateUTC' => $stream == null ? filemtime($filename) : fstat($stream)['mtime']
             ]
         );
 
@@ -379,6 +385,67 @@ class Client
     }
 
     /**
+     * Upload a file using multiple HTTP POSTs.
+     *
+     * @param mixed    $stream    Stream resource
+     * @param string   $folderId  Id of the parent folder
+     * @param string   $filename  Filename (optional)
+     * @param bool     $unzip     Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
+     * @param bool     $overwrite Indicates whether items with the same name will be overwritten or not (optional)
+     * @param bool     $notify    Indicates whether users will be notified of this upload - based on folder preferences (optional)
+     * @param int      $chunkSize Maximum size of the individual HTTP posts in bytes
+     *
+     * @return string
+     */
+    public function uploadFileStreamed($stream, string $folderId, string $filename = null, bool $unzip = false, bool $overwrite = true, bool $notify = true, int $chunkSize = null):string
+    {
+        $filename = $filename ?? stream_get_meta_data($stream)['uri'];
+        if (empty($filename)) {
+            return 'Error: no filename';
+        }
+
+        $chunkUri = $this->getChunkUri('streamed', $filename, $folderId, $unzip, $overwrite, $notify, true, $stream);
+        $chunkSize = $chunkSize ?? SELF::DEFAULT_CHUNK_SIZE;
+        $index = 0;
+
+        // First Chunk
+        $data = $this->readChunk($stream, $chunkSize);
+        while (! ((strlen($data) < $chunkSize) || feof($stream))) {
+            $parameters = $this->buildHttpQuery(
+                [
+                    'index'      => $index,
+                    'byteOffset' => $index * $chunkSize,
+                    'hash'       => md5($data)
+                ]
+            );
+
+            $response = $this->uploadChunk("{$chunkUri['ChunkUri']}&{$parameters}", $data);
+
+            if ($response != 'true') {
+                return $response;
+            }
+
+            // Next chunk
+            $index++;
+            $data = $this->readChunk($stream, $chunkSize);
+        }
+
+        // Final chunk
+        $parameters = $this->buildHttpQuery(
+            [
+                'index'      => $index,
+                'byteOffset' => $index * $chunkSize,
+                'hash'       => md5($data),
+                'filehash'   => Psr7\hash(Psr7\stream_for($stream), 'md5'),
+                'finish'    => true
+            ]
+        );
+
+        return $this->uploadChunk("{$chunkUri['ChunkUri']}&{$parameters}", $data);
+    }
+
+
+     /**
      * Get Thumbnail of an item.
      *
      * @param string $itemId Item id
@@ -535,6 +602,57 @@ class Client
     {
         return $this->request('DELETE', $endpoint);
     }
+
+    /**
+     * Upload a chunk of data using HTTP POST body.
+     *
+     * @param string $uri  Upload URI
+     * @param string $data Contents to upload
+     *
+     * @return string|array
+     */
+    protected function uploadChunk($uri, $data)
+    {
+        $response = $this->client->request(
+            'POST',
+            $uri,
+            [
+                'headers' => [
+                    'Content-Length' => strlen($data),
+                    'Content-Type'   => 'application/octet-stream'
+                ],
+                'body' => $data
+            ]
+        );
+
+        return (string)$response->getBody();
+    }
+
+    /**
+     * Sometimes fread() returns less than the request number of bytes (for example, when reading
+     * from network streams).  This function repeatedly calls fread until the requested number of
+     * bytes have been read or we've reached EOF.
+     *
+     * @param resource $stream
+     * @param int      $chunkSize
+     *
+     * @throws Exception
+     * @return string
+     */
+    protected function readChunk($stream, int $chunkSize)
+    {
+        $chunk = '';
+        while (! feof($stream) && $chunkSize > 0) {
+            $part = fread($stream, $chunkSize);
+            if ($part === false) {
+                throw new Exception('Error reading from $stream.');
+            }
+            $chunk .= $part;
+            $chunkSize -= strlen($part);
+        }
+        return $chunk;
+    }
+
 
     /**
      * Handle ClientException.
