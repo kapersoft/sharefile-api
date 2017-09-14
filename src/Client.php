@@ -335,7 +335,7 @@ class Client
                 'method'                => $method,
                 'raw'                   => $raw,
                 'fileName'              => basename($filename),
-                'fileSize'              => $stream == null ? filesize($filename): fstat($stream)['size'],
+                'fileSize'              => $stream == null ? filesize($filename) : fstat($stream)['size'],
                 'canResume'             => false,
                 'startOver'             => false,
                 'unzip'                 => $unzip,
@@ -346,7 +346,7 @@ class Client
                 'responseFormat'        => 'json',
                 'notify'                => $notify,
                 'clientCreatedDateUTC'  => $stream == null ? filectime($filename) : fstat($stream)['ctime'],
-                'clientModifiedDateUTC' => $stream == null ? filemtime($filename) : fstat($stream)['mtime']
+                'clientModifiedDateUTC' => $stream == null ? filemtime($filename) : fstat($stream)['mtime'],
             ]
         );
 
@@ -415,7 +415,7 @@ class Client
                 [
                     'index'      => $index,
                     'byteOffset' => $index * $chunkSize,
-                    'hash'       => md5($data)
+                    'hash'       => md5($data),
                 ]
             );
 
@@ -437,15 +437,14 @@ class Client
                 'byteOffset' => $index * $chunkSize,
                 'hash'       => md5($data),
                 'filehash'   => Psr7\hash(Psr7\stream_for($stream), 'md5'),
-                'finish'    => true
+                'finish'    => true,
             ]
         );
 
         return $this->uploadChunk("{$chunkUri['ChunkUri']}&{$parameters}", $data);
     }
 
-
-     /**
+    /**
      * Get Thumbnail of an item.
      *
      * @param string $itemId Item id
@@ -619,13 +618,13 @@ class Client
             [
                 'headers' => [
                     'Content-Length' => strlen($data),
-                    'Content-Type'   => 'application/octet-stream'
+                    'Content-Type'   => 'application/octet-stream',
                 ],
-                'body' => $data
+                'body' => $data,
             ]
         );
 
-        return (string)$response->getBody();
+        return (string) $response->getBody();
     }
 
     /**
@@ -650,9 +649,9 @@ class Client
             $chunk .= $part;
             $chunkSize -= strlen($part);
         }
+
         return $chunk;
     }
-
 
     /**
      * Handle ClientException.

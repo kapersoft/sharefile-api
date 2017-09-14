@@ -6,12 +6,12 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use org\bovigo\vfs\content\LargeFileContent;
 use org\bovigo\vfs\vfsStream;
 use Kapersoft\Sharefile\Client;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Exception\ClientException;
+use org\bovigo\vfs\content\LargeFileContent;
 
 /**
  * Class TestClient.
@@ -479,7 +479,6 @@ class TestClient extends TestCase
      */
     public function it_can_upload_an_item_using_multiple_http_posts() // @codingStandardsIgnoreLine
     {
-
         $vfsFile = $this->createMockFile('textfile.txt', LargeFileContent::withKilobytes(10));
 
         // Create response
@@ -488,7 +487,7 @@ class TestClient extends TestCase
             new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain'])),
             new Response(200, [], json_encode(['ChunkUri' => 'https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id'])),
             new Response(200, [], 'true'),
-            new Response(200, [], $expectedResponse)
+            new Response(200, [], $expectedResponse),
         ];
 
         // Create mockHandler
