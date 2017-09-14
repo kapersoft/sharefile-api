@@ -450,7 +450,7 @@ class TestShareFileApi extends TestCase
         $response = $this->getClient()->uploadFileStreamed($handle, $folderId);
         // print_r($response);
 
-        $this-
+        $this -
         $this->assertTrue($this->validateGuid($response));
     }
 
@@ -777,5 +777,4 @@ class TestShareFileApi extends TestCase
     {
         return preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/i', $value) !== 0;
     }
-
 }
