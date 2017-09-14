@@ -317,6 +317,8 @@ class Client
      * @param bool   $unzip     Inidicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
      * @param bool   $overwrite Indicates whether items with the same name will be overwritten or not (optional)
      * @param bool   $notify    Indicates whether users will be notified of this upload - based on folder preferences (optional)
+     * @param bool     $unzip     Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
+     * @param bool     $overwrite Indicates whether items with the same name will be overwritten or not (optional)
      *
      * @return array
      */
@@ -350,7 +352,7 @@ class Client
      *
      * @param string $filename  Name of file
      * @param string $folderId  Id of the parent folder
-     * @param bool   $unzip     Inidicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
+     * @param bool   $unzip     Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
      * @param bool   $overwrite Indicates whether items with the same name will be overwritten or not (optional)
      * @param bool   $notify    Indicates whether users will be notified of this upload - based on folder preferences (optional)
      *
