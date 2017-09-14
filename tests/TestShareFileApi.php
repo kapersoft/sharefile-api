@@ -450,7 +450,6 @@ class TestShareFileApi extends TestCase
         $response = $this->getClient()->uploadFileStreamed($handle, $folderId);
         // print_r($response);
 
-        $this -
         $this->assertTrue($this->validateGuid($response));
     }
 
