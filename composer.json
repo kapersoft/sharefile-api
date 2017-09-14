@@ -23,6 +23,7 @@
         "guzzlehttp/guzzle": "^6.2"
     },
     "require-dev": {
+        "larapack/dd": "1.*",
         "mikey179/vfsStream": "^1.6",
         "phpunit/phpunit": "6.4.x-dev"
     },
