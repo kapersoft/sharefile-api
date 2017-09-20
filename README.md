@@ -5,7 +5,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/kapersoft/sharefile-api.svg?style=flat-square)](https://packagist.org/packages/kapersoft/sharefile-api)
 
 # A minimal implementation of the ShareFile Api
-This is a minimal PHP implementation of the [ShareFile API](https://api.sharefile.com). I am open to PRs that add extra methods to the client. 
+This is a minimal PHP implementation of the [ShareFile API](https://api.sharefile.com). It contains only the methods needed for my [flysystem-sharefile adapter](https://github.com/kapersoft/flysystem-sharefile). I am open to PRs that add extra methods to the client. 
 
 Here are a few examples on how you can use the package:
 ```php
