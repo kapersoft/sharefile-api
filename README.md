@@ -21,8 +21,14 @@ $client->uploadFileStandard($filename, $newFolder['Id']);
 // Get details for a file using filepath
 $picture = $client->getItemByPath('/Personal Folders/Pictures/Picture.jpg');
 
-// Get a thumbnail of a file
+// Using file details we can ask for the thumbnail url
 $client->getThumbnailUrl($picture['Id']);
+
+// Or the direct download link
+$client->getItemDownloadUrl($picture['Id']);
+
+// Or the contents of the file
+$client->getItemContents($picture['Id']);
 ```
 
 ## Installation
