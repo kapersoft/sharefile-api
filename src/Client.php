@@ -1,6 +1,6 @@
 <?php
 
-namespace Kapersoft\ShareFile;
+namespace Kapersoft\Sharefile;
 
 use Exception;
 use GuzzleHttp\Psr7;
