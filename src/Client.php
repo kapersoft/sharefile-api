@@ -67,13 +67,24 @@ class Client
      */
     public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null)
     {
-        $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
-
-        if (! isset($response['access_token']) || ! isset($response['subdomain'])) {
-            throw new Exception("Incorrect response from Authentication: 'access_token' or 'subdomain' is missing.");
+        if(! session_id()) {
+            session_start();
         }
 
-        $this->token = $response;
+        $sessionKey = 'sharefile-session' . '_' . $hostname . '_' . $client_id . '_' . $client_secret . '_' . $username . '_' . $password;
+
+        if (! $this->isAuthenticated($sessionKey)) {
+            $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
+
+            if (! isset($response['access_token']) || ! isset($response['subdomain'])) {
+                throw new Exception("Incorrect response from Authentication: 'access_token' or 'subdomain' is missing.");
+            }
+
+            $this->setToken($sessionKey, $response);
+        }
+
+        $this->token = $this->getToken($sessionKey);
+
         $this->client = new GuzzleClient(
             [
                 'handler' => $handler,
@@ -125,6 +136,35 @@ class Client
         } else {
             throw new Exception('Authentication error', $response->getStatusCode());
         }
+    }
+
+    protected function isAuthenticated($sessionKey)
+    {
+        if (empty($_SESSION[$sessionKey])) {
+            return false;
+        }
+
+        if (empty($_SESSION[$sessionKey]['access_token'])) {
+            return false;
+        }
+
+        $expires_at = $_SESSION[$sessionKey]['expires_at'];
+        if (time() > $expires_at) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function getToken($sessionKey)
+    {
+        return $_SESSION[$sessionKey];
+    }
+
+    protected function setToken($sessionKey, $token)
+    {
+        $_SESSION[$sessionKey] = $token;
+        $_SESSION[$sessionKey]['expires_at'] = time() + $token['expires_in'];
     }
 
     /**
