@@ -1,6 +1,6 @@
 <?php
 
-namespace Kapersoft\ShareFile;
+namespace Kapersoft\Sharefile;
 
 use Exception;
 use GuzzleHttp\Psr7;
@@ -62,21 +62,34 @@ class Client
      * @param string                   $username      ShareFile username
      * @param string                   $password      ShareFile password
      * @param MockHandler|HandlerStack $handler       Guzzle Handler
+     * @param boolean                  $verify_ssl    Describes the SSL certificate verification behavior of a request
      *
      * @throws Exception
      */
-    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null)
+    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null, $verify_ssl = true)
     {
-        $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
-
-        if (! isset($response['access_token']) || ! isset($response['subdomain'])) {
-            throw new Exception("Incorrect response from Authentication: 'access_token' or 'subdomain' is missing.");
+        if(! session_id()) {
+            session_start();
         }
 
-        $this->token = $response;
+        $sessionKey = 'sharefile-session' . '_' . $hostname . '_' . $client_id . '_' . $client_secret . '_' . $username . '_' . $password;
+
+        if (! $this->isAuthenticated($sessionKey)) {
+            $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
+
+            if (! isset($response['access_token']) || ! isset($response['subdomain'])) {
+                throw new Exception("Incorrect response from Authentication: 'access_token' or 'subdomain' is missing.");
+            }
+
+            $this->setToken($sessionKey, $response);
+        }
+
+        $this->token = $this->getToken($sessionKey);
+
         $this->client = new GuzzleClient(
             [
                 'handler' => $handler,
+                'verify' => $verify_ssl,
                 'headers' => [
                     'Authorization' => "Bearer {$this->token['access_token']}",
                 ],
@@ -93,12 +106,13 @@ class Client
      * @param string                   $username      ShareFile username
      * @param string                   $password      ShareFile password
      * @param MockHandler|HandlerStack $handler       Guzzle Handler
+     * @param boolean                  $verify_ssl    Describes the SSL certificate verification behavior of a request
      *
      * @throws Exception
      *
      * @return array
      */
-    protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null):array
+    protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null, $verify_ssl = true):array
     {
         $uri = "https://{$hostname}/oauth/token";
 
@@ -111,7 +125,7 @@ class Client
         ];
 
         try {
-            $client = new GuzzleClient(['handler' => $handler]);
+            $client = new GuzzleClient(['handler' => $handler, 'verify' => $verify_ssl]);
             $response = $client->post(
                 $uri,
                 ['form_params' => $parameters]
@@ -125,6 +139,35 @@ class Client
         } else {
             throw new Exception('Authentication error', $response->getStatusCode());
         }
+    }
+
+    protected function isAuthenticated($sessionKey)
+    {
+        if (empty($_SESSION[$sessionKey])) {
+            return false;
+        }
+
+        if (empty($_SESSION[$sessionKey]['access_token'])) {
+            return false;
+        }
+
+        $expires_at = $_SESSION[$sessionKey]['expires_at'];
+        if (time() > $expires_at) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function getToken($sessionKey)
+    {
+        return $_SESSION[$sessionKey];
+    }
+
+    protected function setToken($sessionKey, $token)
+    {
+        $_SESSION[$sessionKey] = $token;
+        $_SESSION[$sessionKey]['expires_at'] = time() + $token['expires_in'];
     }
 
     /**
