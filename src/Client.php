@@ -6,9 +6,9 @@ use Exception;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use Kapersoft\Sharefile\Exceptions\BadRequest;
+use Slacker775\OAuth2\Client\Provider\ShareFile as AuthProvider;
 
 /**
  * Class Client.
@@ -28,11 +28,22 @@ class Client
     public $token;
 
     /**
-     * Guzzle Client.
      *
-     * @var \GuzzleHttp\Client
+     * @var AbstractProvider
      */
-    public $client;
+    protected $authProvider;
+
+    /**
+     *
+     * @var AccessToken
+     */
+    protected $accessToken;
+
+    /**
+     *
+     * @var array
+     */
+    protected $options;
 
     /**
      * Thumbnail size.
@@ -67,64 +78,17 @@ class Client
      */
     public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null)
     {
-        $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
+        $this->authProvider = new AuthProvider([
+            'clientId' => $client_id,
+            'clientSecret' => $client_secret
+        ]);
 
-        if (! isset($response['access_token']) || ! isset($response['subdomain'])) {
-            throw new Exception("Incorrect response from Authentication: 'access_token' or 'subdomain' is missing.");
-        }
-
-        $this->token = $response;
-        $this->client = new GuzzleClient(
-            [
-                'handler' => $handler,
-                'headers' => [
-                    'Authorization' => "Bearer {$this->token['access_token']}",
-                ],
-            ]
-        );
-    }
-
-    /**
-     * ShareFile authentication using username/password.
-     *
-     * @param string                   $hostname      ShareFile hostname
-     * @param string                   $client_id     OAuth2 client_id
-     * @param string                   $client_secret OAuth2 client_secret
-     * @param string                   $username      ShareFile username
-     * @param string                   $password      ShareFile password
-     * @param MockHandler|HandlerStack $handler       Guzzle Handler
-     *
-     * @throws Exception
-     *
-     * @return array
-     */
-    protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null):array
-    {
-        $uri = "https://{$hostname}/oauth/token";
-
-        $parameters = [
-            'grant_type'    => 'password',
-            'client_id'     => $client_id,
-            'client_secret' => $client_secret,
-            'username'      => $username,
-            'password'      => $password,
+        $this->options = [
+            'username' => $username,
+            'password' => $password,
+            'baseUrl' => $hostname,
         ];
 
-        try {
-            $client = new GuzzleClient(['handler' => $handler]);
-            $response = $client->post(
-                $uri,
-                ['form_params' => $parameters]
-            );
-        } catch (ClientException $exception) {
-            throw $exception;
-        }
-
-        if ($response->getStatusCode() == '200') {
-            return json_decode($response->getBody(), true);
-        } else {
-            throw new Exception('Authentication error', $response->getStatusCode());
-        }
     }
 
     /**
@@ -368,9 +332,10 @@ class Client
     {
         $chunkUri = $this->getChunkUri('standard', $filename, $folderId, $unzip, $overwrite, $notify);
 
-        $response = $this->client->request(
+        $request = $this->authProvider->getAuthenticatedRequest(
             'POST',
             $chunkUri['ChunkUri'],
+            $this->accessToken,
             [
                 'multipart' => [
                     [
@@ -380,6 +345,7 @@ class Client
                 ],
             ]
         );
+        $response = $this->authProvider->getResponse($request);
 
         return (string) $response->getBody();
     }
@@ -522,7 +488,7 @@ class Client
      */
     protected function buildUri(string $endpoint): string
     {
-        return  "https://{$this->token['subdomain']}.sf-api.com/sf/v3/{$endpoint}";
+        return  "https://{$this->accessToken->getValues()['subdomain']}.sf-api.com/sf/v3/{$endpoint}";
     }
 
     /**
@@ -538,11 +504,20 @@ class Client
      */
     protected function request(string $method, string $endpoint, $json = null)
     {
+        if (is_null($this->accessToken)) {
+            $this->accessToken = $this->authProvider->getAccessToken('password', [
+                'username' => $this->options['username'],
+                'password' => $this->options['password'],
+                'baseUrl' => $this->options['baseUrl']
+            ]);
+        }
+
         $uri = $this->buildUri($endpoint);
         $options = $json != null ? ['json' => $json] : [];
 
         try {
-            $response = $this->client->request($method, $uri, $options);
+            $request = $this->authProvider->getAuthenticatedRequest($method, $uri, $this->accessToken, $options);
+            $response = $this->authProvider->getResponse($request);
         } catch (ClientException $exception) {
             throw $this->determineException($exception);
         }
@@ -612,9 +587,10 @@ class Client
      */
     protected function uploadChunk($uri, $data)
     {
-        $response = $this->client->request(
+        $request = $this->authProvider->getAuthenticatedRequest(
             'POST',
             $uri,
+            $this->accessToken,
             [
                 'headers' => [
                     'Content-Length' => strlen($data),
@@ -623,6 +599,7 @@ class Client
                 'body' => $data,
             ]
         );
+        $response = $this->authProvider->getResponse($request);
 
         return (string) $response->getBody();
     }

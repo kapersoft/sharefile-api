@@ -20,6 +20,7 @@
     ],
     "require": {
         "php": "^7.0",
+        "slacker775/oauth2-sharefile": "^1.0",
         "guzzlehttp/guzzle": "^6.2"
     },
     "require-dev": {
