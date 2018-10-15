@@ -29,12 +29,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Kapersoft\\Sharefile\\": "src"
+            "Kapersoft\\ShareFile\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Kapersoft\\Sharefile\\Test\\": "tests"
+            "Kapersoft\\ShareFile\\Test\\": "tests"
         }
     },
     "scripts": {
