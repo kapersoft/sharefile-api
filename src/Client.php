@@ -199,17 +199,27 @@ class Client
     }
 
     /**
-     * Get breadcrumps of an item.
+     * Get breadcrumbs of an item.
      *
      * @param string $itemId Item Id
      *
      * @return array
      */
-    public function getItemBreadcrumps(string $itemId):array
+    public function getItemBreadcrumbs(string $itemId):array
     {
         return $this->get("Items({$itemId})/Breadcrumbs");
     }
 
+    /**
+     * For backwards compatibility (typo in "breadcrumbs").
+     *
+     * @deprecated deprecated due to typo in name, use {@see getItemBreadcrumbs()} instead.
+     * @return array
+     */
+    public function getItemBreadcrumps(string $itemId):array
+    {
+        return $this->getItemBreadcrumbs($itemId);
+    }
     /**
      * Copy an item.
      *
