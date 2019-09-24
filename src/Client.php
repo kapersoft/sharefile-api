@@ -1,14 +1,19 @@
 <?php
+declare(strict_types=1);
 
 namespace Kapersoft\ShareFile;
 
 use Exception;
-use GuzzleHttp\Psr7;
+use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Exception\ClientException;
 use Kapersoft\Sharefile\Exceptions\BadRequest;
 use Slacker775\OAuth2\Client\Provider\ShareFile as AuthProvider;
+use League\OAuth2\Client\Provider\AbstractProvider;
+use League\OAuth2\Client\Token\AccessToken;
+use OAuth\Client\TokenStorage\TokenStorageInterface;
+use OAuth\Client\Exception\TokenNotFoundException;
 
 /**
  * Class Client.
@@ -41,6 +46,12 @@ class Client
 
     /**
      *
+     * @var TokenStorageInterface
+     */
+    protected $tokenRepository;
+
+    /**
+     *
      * @var array
      */
     protected $options;
@@ -62,33 +73,48 @@ class Client
     /*
     * Default Chunk Size for uploading files
     */
-    const DEFAULT_CHUNK_SIZE = 8 * 1024 * 1024; // 8 megabytes
+    const DEFAULT_CHUNK_SIZE = 8 * 1024 * 1024;
+
+    // 8 megabytes
 
     /**
      * Client constructor.
      *
-     * @param string                   $hostname      ShareFile hostname
-     * @param string                   $client_id     OAuth2 client_id
-     * @param string                   $client_secret OAuth2 client_secret
-     * @param string                   $username      ShareFile username
-     * @param string                   $password      ShareFile password
-     * @param MockHandler|HandlerStack $handler       Guzzle Handler
+     * @param string $hostname
+     *            ShareFile hostname
+     * @param string $client_id
+     *            OAuth2 client_id
+     * @param string $client_secret
+     *            OAuth2 client_secret
+     * @param string $username
+     *            ShareFile username
+     * @param string $password
+     *            ShareFile password
+     * @param MockHandler|HandlerStack $handler
+     *            Guzzle Handler
      *
      * @throws Exception
      */
-    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null)
+    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null, TokenStorageInterface $tokenRepository = null)
     {
+        $this->tokenRepository = $tokenRepository;
+
+        $client = new HttpClient([
+            'handler' => $handler
+        ]);
+
         $this->authProvider = new AuthProvider([
             'clientId' => $client_id,
             'clientSecret' => $client_secret
+        ], [
+            'httpClient' => $client
         ]);
 
         $this->options = [
             'username' => $username,
             'password' => $password,
-            'baseUrl' => $hostname,
+            'baseUrl' => $hostname
         ];
-
     }
 
     /**
@@ -98,9 +124,14 @@ class Client
      *
      * @return array
      */
-    public function getUser(string $userId = ''):array
+    public function getUser(string $userId = '') : array
     {
         return $this->get("Users({$userId})");
+    }
+
+    public function updateUser(string $userId, array $data) : array
+    {
+        return $this->patch("Users({$userId})", $data);
     }
 
     /**
@@ -113,7 +144,7 @@ class Client
      *
      * @return array
      */
-    public function createFolder(string $parentId, string $name, string $description = '', bool $overwrite = false):array
+    public function createFolder(string $parentId, string $name, string $description = '', bool $overwrite = false) : array
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -138,7 +169,7 @@ class Client
      *
      * @return array
      */
-    public function getItemById(string $itemId, bool $getChildren = false):array
+    public function getItemById(string $itemId, bool $getChildren = false) : array
     {
         $parameters = $getChildren === true ? '$expand=Children' : '';
 
@@ -153,7 +184,7 @@ class Client
      *
      * @return array
      */
-    public function getItemByPath(string $path, string $itemId = ''):array
+    public function getItemByPath(string $path, string $itemId = '') : array
     {
         if (empty($itemId)) {
             return $this->get("Items/ByPath?Path={$path}");
@@ -163,13 +194,13 @@ class Client
     }
 
     /**
-     * Get breadcrumps of an item.
+     * Get breadcrumbs of an item.
      *
      * @param string $itemId Item Id
      *
      * @return array
      */
-    public function getItemBreadcrumps(string $itemId):array
+    public function getItemBreadcrumbs(string $itemId) : array
     {
         return $this->get("Items({$itemId})/Breadcrumbs");
     }
@@ -183,7 +214,7 @@ class Client
      *
      * @return array
      */
-    public function copyItem(string $targetId, string $itemId, bool $overwrite = false):array
+    public function copyItem(string $targetId, string $itemId, bool $overwrite = false) : array
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -205,7 +236,7 @@ class Client
      *
      * @return array
      */
-    public function updateItem(string $itemId, array $data, bool $forceSync = true, bool $notify = true):array
+    public function updateItem(string $itemId, array $data, bool $forceSync = true, bool $notify = true) : array
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -226,7 +257,7 @@ class Client
      *
      * @return string
      */
-    public function deleteItem(string $itemId, bool $singleversion = false, bool $forceSync = false):string
+    public function deleteItem(string $itemId, bool $singleversion = false, bool $forceSync = false) : string
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -479,6 +510,41 @@ class Client
         }
     }
 
+    protected function getAccessToken(): AccessToken
+    {
+        $tokenId = sprintf('sf-%s', $this->options['username']);
+
+        if ($this->accessToken === null) {
+            if ($this->tokenRepository !== null) {
+                try {
+                $this->accessToken = $this->tokenRepository->loadToken($tokenId);
+                } catch(TokenNotFoundException $e) {}
+            }
+
+            if ($this->accessToken === null) {
+                $this->accessToken = $this->authProvider->getAccessToken('password', [
+                    'username' => $this->options['username'],
+                    'password' => $this->options['password'],
+                    'baseUrl' => $this->options['baseUrl']
+                ]);
+
+                if ($this->tokenRepository !== null) {
+                    $this->tokenRepository->storeToken($this->accessToken, $tokenId);
+                }
+            }
+        }
+
+        if ($this->accessToken->hasExpired() === true) {
+            $this->accessToken = $this->authProvider->getAccessToken('refresh_token', [
+                'refresh_token' => $this->accessToken->getRefreshToken()
+            ]);
+            if ($this->tokenRepository !== null) {
+                $this->tokenRepository->storeAccessToken($tokenId, $this->accessToken);
+            }
+        }
+        return $this->accessToken;
+    }
+
     /**
      * Build API uri.
      *
@@ -504,19 +570,13 @@ class Client
      */
     protected function request(string $method, string $endpoint, $json = null)
     {
-        if (is_null($this->accessToken)) {
-            $this->accessToken = $this->authProvider->getAccessToken('password', [
-                'username' => $this->options['username'],
-                'password' => $this->options['password'],
-                'baseUrl' => $this->options['baseUrl']
-            ]);
-        }
+        $accessToken = $this->getAccessToken();
 
         $uri = $this->buildUri($endpoint);
         $options = $json != null ? ['json' => $json] : [];
 
         try {
-            $request = $this->authProvider->getAuthenticatedRequest($method, $uri, $this->accessToken, $options);
+            $request = $this->authProvider->getAuthenticatedRequest($method, $uri, $accessToken, $options);
             $response = $this->authProvider->getResponse($request);
         } catch (ClientException $exception) {
             throw $this->determineException($exception);

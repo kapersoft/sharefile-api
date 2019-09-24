@@ -3,3 +3,7 @@ composer.lock
 vendor
 phpunit.xml
 .phpunit-watcher.yml
+.buildpath
+.settings
+.project
+test.php
