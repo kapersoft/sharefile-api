@@ -8,7 +8,7 @@ use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Exception\ClientException;
-use Kapersoft\Sharefile\Exceptions\BadRequest;
+use Kapersoft\ShareFile\Exceptions\BadRequest;
 use Slacker775\OAuth2\Client\Provider\ShareFile as AuthProvider;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;

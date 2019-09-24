@@ -1,6 +1,6 @@
 <?php
 
-namespace Kapersoft\Sharefile\Exceptions;
+namespace Kapersoft\ShareFile\Exceptions;
 
 use Exception;
 use Psr\Http\Message\ResponseInterface;
