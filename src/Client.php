@@ -433,7 +433,7 @@ class Client
                 'index'      => $index,
                 'byteOffset' => $index * $chunkSize,
                 'hash'       => md5($data),
-                'filehash'   => Psr7\hash(Psr7\stream_for($stream), 'md5'),
+                'filehash'   => \GuzzleHttp\Psr7\hash(\GuzzleHttp\Psr7\stream_for($stream), 'md5'),
                 'finish'    => true,
             ]
         );
@@ -510,7 +510,7 @@ class Client
         }
     }
 
-    protected function getAccessToken(): AccessToken
+    public function getAccessToken(): AccessToken
     {
         $tokenId = sprintf('sf-%s', $this->options['username']);
 
