@@ -26,7 +26,7 @@
 	"require-dev" : {
 		"larapack/dd" : "1.*",
 		"mikey179/vfsstream" : "^1.6",
-		"phpunit/phpunit" : "^8.0"
+		"phpunit/phpunit" : "^6.4"
 	},
 	"autoload" : {
 		"psr-4" : {
