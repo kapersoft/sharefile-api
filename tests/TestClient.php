@@ -7,11 +7,11 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use org\bovigo\vfs\vfsStream;
-use Kapersoft\Sharefile\Client;
-use PHPUnit\Framework\TestCase;
+use Kapersoft\ShareFile\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Exception\ClientException;
 use org\bovigo\vfs\content\LargeFileContent;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class TestClient.
@@ -59,7 +59,7 @@ class TestClient extends TestCase
     public function it_can_be_instantiated() // @codingStandardsIgnoreLine
     {
         $mockHandler = new MockHandler(
-            [new Response(200, [], json_encode(['access_token' => 'my_access_code', 'subdomain' => 'subdomain']))]
+            [new Response(200, [], json_encode(['access_token' => 'my_access_code', 'subdomain' => 'subdomain', 'expires' => time() + 60]))]
         );
 
         $client = new Client(
@@ -72,89 +72,7 @@ class TestClient extends TestCase
         );
 
         $this->assertInstanceOf(Client::class, $client);
-        $this->assertEquals('my_access_code', $client->token['access_token']);
-    }
-
-    /**
-     * Test for it_can_throw_an_exception.
-     *
-     * @test
-     *
-     * @return void
-     */
-    public function it_can_throw_an_exception() // @codingStandardsIgnoreLine
-    {
-        $mockHandler = new MockHandler(
-            [new Response(400)]
-        );
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Authentication error');
-        $this->expectExceptionCode(400);
-
-        $client = new Client(
-            'hostname',
-            'client_id',
-            'secret',
-            'username',
-            'password',
-            $mockHandler
-        );
-    }
-
-    /**
-     * Test for it_can_handle_an_incorrect_authentication_response.
-     *
-     * @test
-     *
-     * @return void
-     */
-    public function it_can_handle_an_incorrect_authentication_response() // @codingStandardsIgnoreLine
-    {
-        $mockHandler = new MockHandler(
-            [new Response(200, [], json_encode([]))]
-        );
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage("Incorrect response from Authentication: 'access_token' or 'subdomain' is missing.");
-
-        $client = new Client(
-            'hostname',
-            'client_id',
-            'secret',
-            'username',
-            'password',
-            $mockHandler
-        );
-    }
-
-    /**
-     * Test for it_can_throw_an_client_exception.
-     *
-     * @test
-     *
-     * @return void
-     */
-    public function it_can_throw_an_client_exception() // @codingStandardsIgnoreLine
-    {
-        $mockHandler = new MockHandler(
-            [
-                new ClientException('Could not resolve host: hostname', new Request('POST', 'hostname'), new response(404)),
-            ]
-        );
-
-        $this->expectException(ClientException::class);
-        $this->expectExceptionCode(404);
-        $this->expectExceptionMessage('Could not resolve host: hostname');
-
-        $client = new Client(
-            'hostname',
-            'client_id',
-            'secret',
-            'username',
-            'password',
-            $mockHandler
-        );
+        $this->assertEquals('my_access_code', $client->getAccessToken()->getToken());
     }
 
     /**
@@ -247,7 +165,7 @@ class TestClient extends TestCase
         $expectedResponse = ['odata.type' => 'odata.metadata', 'odata.count' => '2', 'value' => []];
         $mockClient = $this->getMockClient($expectedResponse);
 
-        $response = $mockClient->getItemBreadcrumps(Client::FOLDER_HOME);
+        $response = $mockClient->getItemBreadcrumbs(Client::FOLDER_HOME);
 
         $this->assertSame('GET', (string) $this->getLastRequest()->getMethod());
         $this->assertSame('https://subdomain.sf-api.com/sf/v3/Items(home)/Breadcrumbs', (string) $this->getLastRequest()->getUri());
@@ -274,13 +192,13 @@ class TestClient extends TestCase
     }
 
     /**
-     * Test for it_can_get_item_breadcrumps.
+     * Test for it_can_get_item_breadcrumbs.
      *
      * @test
      *
      * @return void
      */
-    public function it_can_get_item_breadcrumps() // @codingStandardsIgnoreLine
+    public function it_can_get_item_breadcrumbs() // @codingStandardsIgnoreLine
     {
         $expectedResponse = ['odata.type' => 'ShareFile.Api.Models.Folder', 'Id' => 'top', 'Children' => ''];
         $mockClient = $this->getMockClient($expectedResponse);
@@ -442,7 +360,7 @@ class TestClient extends TestCase
         // Create response
         $expectedResponse = 'OK';
         $mockResponse = [
-            new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain'])),
+            new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain', 'expires' => time() + 60])),
             new Response(200, [], json_encode(['ChunkUri' => 'https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id'])),
             new Response(200, [], $expectedResponse),
         ];
@@ -484,7 +402,7 @@ class TestClient extends TestCase
         // Create response
         $expectedResponse = 'fo66e8f5-3aa3-405b-8129-f9a749dd4e99';
         $mockResponse = [
-            new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain'])),
+            new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain', 'expires' => time() + 60])),
             new Response(200, [], json_encode(['ChunkUri' => 'https://storage-eu-202.sharefile.com/upload.aspx?uploadid=my_upload_id'])),
             new Response(200, [], 'true'),
             new Response(200, [], $expectedResponse),
@@ -648,7 +566,14 @@ class TestClient extends TestCase
         }
 
         $mockResponse = [
-            new Response(200, [], json_encode(['access_token' => 'access_code', 'subdomain' => 'subdomain'])),
+            new Response(200, [], json_encode([
+                'access_token' => 'access_code',
+                'subdomain' => 'subdomain',
+                'expires' => time() + 60,
+                'refresh_token' => 'refresh_code',
+                'token_type' => 'bearer',
+                'appcp' => 'sharefile.com'
+            ])),
             new Response(200, $responseHeaders, $responseBody),
         ];
 

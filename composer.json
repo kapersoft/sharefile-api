@@ -1,46 +1,50 @@
 {
-    "name": "kapersoft/sharefile-api",
-    "description": "A minimal implementation of ShareFile Api",
-    "keywords": [
-        "kapersoft",
-        "sharefile-api",
-        "sharefile",
-        "api",
-        "php"
-    ],
-    "homepage": "https://github.com/kapersoft/sharefile-api",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Jan Willem Kaper",
-            "email": "kapersoft@gmail.com",
-            "homepage": "https://kapersoft.com",
-            "role": "Developer"
-        }
-    ],
-    "require": {
-        "php": "^7.0",
-        "guzzlehttp/guzzle": "^6.2"
-    },
-    "require-dev": {
-        "larapack/dd": "1.*",
-        "mikey179/vfsStream": "^1.6",
-        "phpunit/phpunit": "6.4.x-dev"
-    },
-    "autoload": {
-        "psr-4": {
-            "Kapersoft\\Sharefile\\": "src"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Kapersoft\\Sharefile\\Test\\": "tests"
-        }
-    },
-    "scripts": {
-        "test": "vendor/bin/phpunit"
-    },
-    "config": {
-        "sort-packages": true
-    }
+	"name" : "kapersoft/sharefile-api",
+	"description" : "A minimal implementation of ShareFile Api",
+	"keywords" : [
+		"kapersoft",
+		"sharefile-api",
+		"sharefile",
+		"api",
+		"php"
+	],
+	"homepage" : "https://github.com/kapersoft/sharefile-api",
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Jan Willem Kaper",
+			"email" : "kapersoft@gmail.com",
+			"homepage" : "https://kapersoft.com",
+			"role" : "Developer"
+		}
+	],
+	"require" : {
+		"php" : "^7.0",
+		"slacker775/oauth2-sharefile" : "^1.0",
+		"guzzlehttp/guzzle" : "^6.2",
+		"slacker775/oauth2-tokenstorage" : "^1.0"
+	},
+	"require-dev" : {
+		"larapack/dd" : "1.*",
+		"mikey179/vfsstream" : "^1.6",
+		"phpunit/phpunit" : "^6.4"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"Kapersoft\\ShareFile\\" : "src/"
+		}
+	},
+	"autoload-dev" : {
+		"psr-4" : {
+			"Kapersoft\\Sharefile\\Test\\" : "tests/"
+		}
+	},
+	"scripts" : {
+		"test" : "vendor/bin/phpunit"
+	},
+	"config" : {
+		"sort-packages" : true
+	},
+	"suggest" : {
+		"league/flysystem" : "Utilize Flysystem for OAuth Token Storage"
+	}
 }
