@@ -295,6 +295,23 @@ class Client
     }
 
     /**
+     * Search Item.
+     *
+     * @param string $query   Query
+     * @param string $folderId Id of the root folder (optional)
+     *
+     * @return array
+     */
+    public function itemSearch(string $query, string $folderId = ''):array
+    {
+        if (!empty($folderId)) {
+            return $this->get("Items({$folderId})/Search?query={$query}&homefolderonly=false");
+        }
+
+        return $this->get("Items/Search?query={$query}&homefolderonly=false");
+    }
+
+    /**
      * Get contents of and item.
      *
      * @param string $itemId             Item id
