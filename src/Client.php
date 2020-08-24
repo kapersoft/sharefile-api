@@ -8,7 +8,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
-use Kapersoft\Sharefile\Exceptions\BadRequest;
+use Kapersoft\ShareFile\Exceptions\BadRequest;
 
 /**
  * Class Client.
