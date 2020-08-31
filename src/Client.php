@@ -300,17 +300,19 @@ class Client
      * @param string $query Query
      * @param int $maxResults Maximum results in search response
      * @param string $folderId Id of the root folder (optional)
-     * @param bool $homefolderonly
+     * @param bool $homeFolderOnly
      *
      * @return array
      */
-    public function searchItem(string $query, $maxResults = 50, string $folderId = '', $homefolderonly = false): array
+    public function searchItem(string $query, $maxResults = 50, string $folderId = '', $homeFolderOnly = false): array
     {
+        $homeFolderOnly = var_export($homeFolderOnly, true);
+
         if (!empty($folderId)) {
-            return $this->get("Items({$folderId})/Search?query={$query}&homefolderonly={$homefolderonly}&maxResults={$maxResults}");
+            return $this->get("Items({$folderId})/Search?query={$query}&homefolderonly={$homeFolderOnly}&maxResults={$maxResults}");
         }
 
-        return $this->get("Items/Search?query={$query}&homefolderonly={$homefolderonly}&maxResults={$maxResults}");
+        return $this->get("Items/Search?query={$query}&homefolderonly={$homeFolderOnly}&maxResults={$maxResults}");
     }
 
     /**
