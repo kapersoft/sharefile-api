@@ -1,13 +1,13 @@
 <?php
 
-namespace Kapersoft\ShareFile;
+namespace Kapersoft\Sharefile;
 
 use Exception;
-use GuzzleHttp\Psr7;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7;
 use Kapersoft\Sharefile\Exceptions\BadRequest;
 
 /**
@@ -56,20 +56,26 @@ class Client
     /**
      * Client constructor.
      *
-     * @param string                   $hostname      ShareFile hostname
-     * @param string                   $client_id     OAuth2 client_id
-     * @param string                   $client_secret OAuth2 client_secret
-     * @param string                   $username      ShareFile username
-     * @param string                   $password      ShareFile password
-     * @param MockHandler|HandlerStack $handler       Guzzle Handler
+     * @param  string  $hostname  ShareFile hostname
+     * @param  string  $client_id  OAuth2 client_id
+     * @param  string  $client_secret  OAuth2 client_secret
+     * @param  string  $username  ShareFile username
+     * @param  string  $password  ShareFile password
+     * @param  MockHandler|HandlerStack  $handler  Guzzle Handler
      *
      * @throws Exception
      */
-    public function __construct(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null)
-    {
+    public function __construct(
+        string $hostname,
+        string $client_id,
+        string $client_secret,
+        string $username,
+        string $password,
+        $handler = null
+    ) {
         $response = $this->authenticate($hostname, $client_id, $client_secret, $username, $password, $handler);
 
-        if (! isset($response['access_token']) || ! isset($response['subdomain'])) {
+        if (!isset($response['access_token']) || !isset($response['subdomain'])) {
             throw new Exception("Incorrect response from Authentication: 'access_token' or 'subdomain' is missing.");
         }
 
@@ -87,19 +93,25 @@ class Client
     /**
      * ShareFile authentication using username/password.
      *
-     * @param string                   $hostname      ShareFile hostname
-     * @param string                   $client_id     OAuth2 client_id
-     * @param string                   $client_secret OAuth2 client_secret
-     * @param string                   $username      ShareFile username
-     * @param string                   $password      ShareFile password
-     * @param MockHandler|HandlerStack $handler       Guzzle Handler
-     *
-     * @throws Exception
+     * @param  string  $hostname  ShareFile hostname
+     * @param  string  $client_id  OAuth2 client_id
+     * @param  string  $client_secret  OAuth2 client_secret
+     * @param  string  $username  ShareFile username
+     * @param  string  $password  ShareFile password
+     * @param  MockHandler|HandlerStack  $handler  Guzzle Handler
      *
      * @return array
+     * @throws Exception
+     *
      */
-    protected function authenticate(string $hostname, string $client_id, string $client_secret, string $username, string $password, $handler = null):array
-    {
+    protected function authenticate(
+        string $hostname,
+        string $client_id,
+        string $client_secret,
+        string $username,
+        string $password,
+        $handler = null
+    ): array {
         $uri = "https://{$hostname}/oauth/token";
 
         $parameters = [
@@ -130,11 +142,11 @@ class Client
     /**
      * Get user details.
      *
-     * @param string $userId ShareFile user id (optional)
+     * @param  string  $userId  ShareFile user id (optional)
      *
      * @return array
      */
-    public function getUser(string $userId = ''):array
+    public function getUser(string $userId = ''): array
     {
         return $this->get("Users({$userId})");
     }
@@ -142,15 +154,19 @@ class Client
     /**
      * Create a folder.
      *
-     * @param string $parentId    Id of the parent folder
-     * @param string $name        Name
-     * @param string $description Description
-     * @param bool   $overwrite   Overwrite folder
+     * @param  string  $parentId  Id of the parent folder
+     * @param  string  $name  Name
+     * @param  string  $description  Description
+     * @param  bool  $overwrite  Overwrite folder
      *
      * @return array
      */
-    public function createFolder(string $parentId, string $name, string $description = '', bool $overwrite = false):array
-    {
+    public function createFolder(
+        string $parentId,
+        string $name,
+        string $description = '',
+        bool $overwrite = false
+    ): array {
         $parameters = $this->buildHttpQuery(
             [
                 'overwrite'   => $overwrite,
@@ -169,12 +185,12 @@ class Client
     /**
      * Get Folder/File using Id.
      *
-     * @param string $itemId      Item id
-     * @param bool   $getChildren Include children
+     * @param  string  $itemId  Item id
+     * @param  bool  $getChildren  Include children
      *
      * @return array
      */
-    public function getItemById(string $itemId, bool $getChildren = false):array
+    public function getItemById(string $itemId, bool $getChildren = false): array
     {
         $parameters = $getChildren === true ? '$expand=Children' : '';
 
@@ -184,12 +200,12 @@ class Client
     /**
      * Get Folder/File using path.
      *
-     * @param string $path   Path
-     * @param string $itemId Id of the root folder (optional)
+     * @param  string  $path  Path
+     * @param  string  $itemId  Id of the root folder (optional)
      *
      * @return array
      */
-    public function getItemByPath(string $path, string $itemId = ''):array
+    public function getItemByPath(string $path, string $itemId = ''): array
     {
         if (empty($itemId)) {
             return $this->get("Items/ByPath?Path={$path}");
@@ -201,11 +217,11 @@ class Client
     /**
      * Get breadcrumps of an item.
      *
-     * @param string $itemId Item Id
+     * @param  string  $itemId  Item Id
      *
      * @return array
      */
-    public function getItemBreadcrumps(string $itemId):array
+    public function getItemBreadcrumps(string $itemId): array
     {
         return $this->get("Items({$itemId})/Breadcrumbs");
     }
@@ -213,13 +229,13 @@ class Client
     /**
      * Copy an item.
      *
-     * @param string $targetId  Id of the target folder
-     * @param string $itemId    Id of the copied item
-     * @param bool   $overwrite Indicates whether items with the same name will be overwritten or not (optional)
+     * @param  string  $targetId  Id of the target folder
+     * @param  string  $itemId  Id of the copied item
+     * @param  bool  $overwrite  Indicates whether items with the same name will be overwritten or not (optional)
      *
      * @return array
      */
-    public function copyItem(string $targetId, string $itemId, bool $overwrite = false):array
+    public function copyItem(string $targetId, string $itemId, bool $overwrite = false): array
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -234,14 +250,14 @@ class Client
     /**
      * Update an item.
      *
-     * @param string $itemId    Id of the item
-     * @param array  $data      New data
-     * @param bool   $forceSync Indicates whether operation is to be executed synchronously (optional)
-     * @param bool   $notify    Indicates whether an email should be sent to users subscribed to Upload Notifications (optional)
+     * @param  string  $itemId  Id of the item
+     * @param  array  $data  New data
+     * @param  bool  $forceSync  Indicates whether operation is to be executed synchronously (optional)
+     * @param  bool  $notify  Indicates whether an email should be sent to users subscribed to Upload Notifications (optional)
      *
      * @return array
      */
-    public function updateItem(string $itemId, array $data, bool $forceSync = true, bool $notify = true):array
+    public function updateItem(string $itemId, array $data, bool $forceSync = true, bool $notify = true): array
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -256,13 +272,13 @@ class Client
     /**
      * Delete an item.
      *
-     * @param string $itemId        Item id
-     * @param bool   $singleversion True it will delete only the specified version rather than all sibling files with the same filename (optional)
-     * @param bool   $forceSync     True will block the operation from taking place asynchronously (optional)
+     * @param  string  $itemId  Item id
+     * @param  bool  $singleversion  True it will delete only the specified version rather than all sibling files with the same filename (optional)
+     * @param  bool  $forceSync  True will block the operation from taking place asynchronously (optional)
      *
      * @return string
      */
-    public function deleteItem(string $itemId, bool $singleversion = false, bool $forceSync = false):string
+    public function deleteItem(string $itemId, bool $singleversion = false, bool $forceSync = false): string
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -277,12 +293,12 @@ class Client
     /**
      * Get temporary download URL for an item.
      *
-     * @param string $itemId             Item id
-     * @param bool   $includeallversions For folder downloads only, includes old versions of files in the folder in the zip when true, current versions only when false (default)
+     * @param  string  $itemId  Item id
+     * @param  bool  $includeallversions  For folder downloads only, includes old versions of files in the folder in the zip when true, current versions only when false (default)
      *
      * @return array
      */
-    public function getItemDownloadUrl(string $itemId, bool $includeallversions = false):array
+    public function getItemDownloadUrl(string $itemId, bool $includeallversions = false): array
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -297,8 +313,8 @@ class Client
     /**
      * Get contents of and item.
      *
-     * @param string $itemId             Item id
-     * @param bool   $includeallversions $includeallversions For folder downloads only, includes old versions of files in the folder in the zip when true, current versions only when false (default)
+     * @param  string  $itemId  Item id
+     * @param  bool  $includeallversions  $includeallversions For folder downloads only, includes old versions of files in the folder in the zip when true, current versions only when false (default)
      *
      * @return mixed
      */
@@ -317,19 +333,27 @@ class Client
     /**
      * Get the Chunk Uri to start a file-upload.
      *
-     * @param string   $method    Upload method (Standard or Streamed)
-     * @param string   $filename  Name of file
-     * @param string   $folderId  Id of the parent folder
-     * @param bool     $unzip     Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
-     * @param bool     $overwrite Indicates whether items with the same name will be overwritten or not (optional)
-     * @param bool     $notify    Indicates whether users will be notified of this upload - based on folder preferences (optional)
-     * @param bool     $raw       Send contents contents directly in the POST body (=true) or send contents in MIME format (=false) (optional)
-     * @param resource $stream    Resource stream of the contents (optional)
+     * @param  string  $method  Upload method (Standard or Streamed)
+     * @param  string  $filename  Name of file
+     * @param  string  $folderId  Id of the parent folder
+     * @param  bool  $unzip  Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
+     * @param  bool  $overwrite  Indicates whether items with the same name will be overwritten or not (optional)
+     * @param  bool  $notify  Indicates whether users will be notified of this upload - based on folder preferences (optional)
+     * @param  bool  $raw  Send contents contents directly in the POST body (=true) or send contents in MIME format (=false) (optional)
+     * @param  resource  $stream  Resource stream of the contents (optional)
      *
      * @return array
      */
-    public function getChunkUri(string $method, string $filename, string $folderId, bool $unzip = false, $overwrite = true, bool $notify = true, bool $raw = false, $stream = null):array
-    {
+    public function getChunkUri(
+        string $method,
+        string $filename,
+        string $folderId,
+        bool $unzip = false,
+        $overwrite = true,
+        bool $notify = true,
+        bool $raw = false,
+        $stream = null
+    ): array {
         $parameters = $this->buildHttpQuery(
             [
                 'method'                => $method,
@@ -356,16 +380,21 @@ class Client
     /**
      * Upload a file using a single HTTP POST.
      *
-     * @param string $filename  Name of file
-     * @param string $folderId  Id of the parent folder
-     * @param bool   $unzip     Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
-     * @param bool   $overwrite Indicates whether items with the same name will be overwritten or not (optional)
-     * @param bool   $notify    Indicates whether users will be notified of this upload - based on folder preferences (optional)
+     * @param  string  $filename  Name of file
+     * @param  string  $folderId  Id of the parent folder
+     * @param  bool  $unzip  Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
+     * @param  bool  $overwrite  Indicates whether items with the same name will be overwritten or not (optional)
+     * @param  bool  $notify  Indicates whether users will be notified of this upload - based on folder preferences (optional)
      *
      * @return string
      */
-    public function uploadFileStandard(string $filename, string $folderId, bool $unzip = false, bool $overwrite = true, bool $notify = true):string
-    {
+    public function uploadFileStandard(
+        string $filename,
+        string $folderId,
+        bool $unzip = false,
+        bool $overwrite = true,
+        bool $notify = true
+    ): string {
         $chunkUri = $this->getChunkUri('standard', $filename, $folderId, $unzip, $overwrite, $notify);
 
         $response = $this->client->request(
@@ -387,18 +416,25 @@ class Client
     /**
      * Upload a file using multiple HTTP POSTs.
      *
-     * @param mixed    $stream    Stream resource
-     * @param string   $folderId  Id of the parent folder
-     * @param string   $filename  Filename (optional)
-     * @param bool     $unzip     Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
-     * @param bool     $overwrite Indicates whether items with the same name will be overwritten or not (optional)
-     * @param bool     $notify    Indicates whether users will be notified of this upload - based on folder preferences (optional)
-     * @param int      $chunkSize Maximum size of the individual HTTP posts in bytes
+     * @param  mixed  $stream  Stream resource
+     * @param  string  $folderId  Id of the parent folder
+     * @param  string  $filename  Filename (optional)
+     * @param  bool  $unzip  Indicates that the upload is a Zip file, and contents must be extracted at the end of upload. The resulting files and directories will be placed in the target folder. If set to false, the ZIP file is uploaded as a single file. Default is false (optional)
+     * @param  bool  $overwrite  Indicates whether items with the same name will be overwritten or not (optional)
+     * @param  bool  $notify  Indicates whether users will be notified of this upload - based on folder preferences (optional)
+     * @param  int  $chunkSize  Maximum size of the individual HTTP posts in bytes
      *
      * @return string
      */
-    public function uploadFileStreamed($stream, string $folderId, string $filename = null, bool $unzip = false, bool $overwrite = true, bool $notify = true, int $chunkSize = null):string
-    {
+    public function uploadFileStreamed(
+        $stream,
+        string $folderId,
+        string $filename = null,
+        bool $unzip = false,
+        bool $overwrite = true,
+        bool $notify = true,
+        int $chunkSize = null
+    ): string {
         $filename = $filename ?? stream_get_meta_data($stream)['uri'];
         if (empty($filename)) {
             return 'Error: no filename';
@@ -410,7 +446,7 @@ class Client
 
         // First Chunk
         $data = $this->readChunk($stream, $chunkSize);
-        while (! ((strlen($data) < $chunkSize) || feof($stream))) {
+        while (!((strlen($data) < $chunkSize) || feof($stream))) {
             $parameters = $this->buildHttpQuery(
                 [
                     'index'      => $index,
@@ -437,7 +473,7 @@ class Client
                 'byteOffset' => $index * $chunkSize,
                 'hash'       => md5($data),
                 'filehash'   => Psr7\hash(Psr7\stream_for($stream), 'md5'),
-                'finish'    => true,
+                'finish'     => true,
             ]
         );
 
@@ -447,12 +483,12 @@ class Client
     /**
      * Get Thumbnail of an item.
      *
-     * @param string $itemId Item id
-     * @param int    $size   Thumbnail size: THUMBNAIL_SIZE_M or THUMBNAIL_SIZE_L (optional)
+     * @param  string  $itemId  Item id
+     * @param  int  $size  Thumbnail size: THUMBNAIL_SIZE_M or THUMBNAIL_SIZE_L (optional)
      *
      * @return array
      */
-    public function getThumbnailUrl(string $itemId, int $size = 75):array
+    public function getThumbnailUrl(string $itemId, int $size = 75): array
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -467,11 +503,11 @@ class Client
     /**
      * Get browser link for an item.
      *
-     * @param string $itemId Item id
+     * @param  string  $itemId  Item id
      *
      * @return array
      */
-    public function getWebAppLink(string $itemId):array
+    public function getWebAppLink(string $itemId): array
     {
         return $this->post("Items({$itemId})/WebAppLink");
     }
@@ -479,12 +515,12 @@ class Client
     /**
      * Share Share for external user.
      *
-     * @param array $options Share options
-     * @param bool  $notify  Indicates whether user will be notified if item is downloaded (optional)
+     * @param  array  $options  Share options
+     * @param  bool  $notify  Indicates whether user will be notified if item is downloaded (optional)
      *
      * @return array
      */
-    public function createShare(array $options, $notify = false):array
+    public function createShare(array $options, $notify = false): array
     {
         $parameters = $this->buildHttpQuery(
             [
@@ -499,14 +535,14 @@ class Client
     /**
      * Get AccessControl List for an item.
      *
-     * @param string $itemId Id of an item
-     * @param string $userId Id of an user
+     * @param  string  $itemId  Id of an item
+     * @param  string  $userId  Id of an user
      *
      * @return array
      */
-    public function getItemAccessControls(string $itemId, string $userId = ''):array
+    public function getItemAccessControls(string $itemId, string $userId = ''): array
     {
-        if (! empty($userId)) {
+        if (!empty($userId)) {
             return $this->get("AccessControls(principalid={$userId},itemid={$itemId})");
         } else {
             return $this->get("Items({$itemId})/AccessControls");
@@ -516,25 +552,25 @@ class Client
     /**
      * Build API uri.
      *
-     * @param string $endpoint API endpoint
+     * @param  string  $endpoint  API endpoint
      *
      * @return string
      */
     protected function buildUri(string $endpoint): string
     {
-        return  "https://{$this->token['subdomain']}.sf-api.com/sf/v3/{$endpoint}";
+        return "https://{$this->token['subdomain']}.sf-api.com/sf/v3/{$endpoint}";
     }
 
     /**
      * Make a request to the API.
      *
-     * @param string             $method   HTTP Method
-     * @param string             $endpoint API endpoint
-     * @param mixed|string|array $json     POST body (optional)
-     *
-     * @throws Exception
+     * @param  string  $method  HTTP Method
+     * @param  string  $endpoint  API endpoint
+     * @param  mixed|string|array  $json  POST body (optional)
      *
      * @return mixed
+     * @throws Exception
+     *
      */
     protected function request(string $method, string $endpoint, $json = null)
     {
@@ -555,7 +591,7 @@ class Client
     /**
      * Shorthand for GET-request.
      *
-     * @param string $endpoint API endpoint
+     * @param  string  $endpoint  API endpoint
      *
      * @return mixed
      */
@@ -567,8 +603,8 @@ class Client
     /**
      * Shorthand for POST-request.
      *
-     * @param string             $endpoint API endpoint
-     * @param mixed|string|array $json     POST body (optional)
+     * @param  string  $endpoint  API endpoint
+     * @param  mixed|string|array  $json  POST body (optional)
      *
      * @return mixed
      */
@@ -580,8 +616,8 @@ class Client
     /**
      * Shorthand for PATCH-request.
      *
-     * @param string             $endpoint API endpoint
-     * @param mixed|string|array $json     POST body (optional)
+     * @param  string  $endpoint  API endpoint
+     * @param  mixed|string|array  $json  POST body (optional)
      *
      * @return mixed
      */
@@ -593,7 +629,7 @@ class Client
     /**
      * Shorthand for DELETE-request.
      *
-     * @param string $endpoint API endpoint
+     * @param  string  $endpoint  API endpoint
      *
      * @return string|array
      */
@@ -605,8 +641,8 @@ class Client
     /**
      * Upload a chunk of data using HTTP POST body.
      *
-     * @param string $uri  Upload URI
-     * @param string $data Contents to upload
+     * @param  string  $uri  Upload URI
+     * @param  string  $data  Contents to upload
      *
      * @return string|array
      */
@@ -620,7 +656,7 @@ class Client
                     'Content-Length' => strlen($data),
                     'Content-Type'   => 'application/octet-stream',
                 ],
-                'body' => $data,
+                'body'    => $data,
             ]
         );
 
@@ -632,16 +668,16 @@ class Client
      * from network streams).  This function repeatedly calls fread until the requested number of
      * bytes have been read or we've reached EOF.
      *
-     * @param resource $stream
-     * @param int      $chunkSize
+     * @param  resource  $stream
+     * @param  int  $chunkSize
      *
-     * @throws Exception
      * @return string
+     * @throws Exception
      */
     protected function readChunk($stream, int $chunkSize)
     {
         $chunk = '';
-        while (! feof($stream) && $chunkSize > 0) {
+        while (!feof($stream) && $chunkSize > 0) {
             $part = fread($stream, $chunkSize);
             if ($part === false) {
                 throw new Exception('Error reading from $stream.');
@@ -656,7 +692,7 @@ class Client
     /**
      * Handle ClientException.
      *
-     * @param ClientException $exception ClientException
+     * @param  ClientException  $exception  ClientException
      *
      * @return Exception
      */
@@ -672,16 +708,16 @@ class Client
     /**
      * Build HTTP query.
      *
-     * @param array $parameters Query parameters
+     * @param  array  $parameters  Query parameters
      *
      * @return string
      */
-    protected function buildHttpQuery(array $parameters):string
+    protected function buildHttpQuery(array $parameters): string
     {
         return http_build_query(
             array_map(
                 function ($parameter) {
-                    if (! is_bool($parameter)) {
+                    if (!is_bool($parameter)) {
                         return $parameter;
                     }
 
@@ -695,13 +731,13 @@ class Client
     /**
      * Validate JSON.
      *
-     * @param mixed $data JSON variable
+     * @param  mixed  $data  JSON variable
      *
      * @return bool
      */
-    protected function jsonValidator($data = null):bool
+    protected function jsonValidator($data = null): bool
     {
-        if (! empty($data)) {
+        if (!empty($data)) {
             @json_decode($data);
 
             return json_last_error() === JSON_ERROR_NONE;
