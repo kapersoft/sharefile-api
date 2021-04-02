@@ -40,7 +40,7 @@ composer require kapersoft/sharefile-api
 ## Usage
 The first thing you need to do is get an OAuth2 key. Go to the [Get an API key](https://api.sharefile.com/rest/oauth2-request.aspx) section on the [ShareFile API site](https://api.sharefile.com/) to get this key.
 
-With an OAuth2 key you can instantiate a `Kapersoft\Sharefile\Client`:
+With an OAuth2 key you can instantiate a `Kapersoft\ShareFile\Client`:
 ```php
 $client = new Client('hostname', 'client_id', 'secret', 'username', 'password');
 ```
@@ -52,8 +52,8 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 ## Testing
 In the `/tests`-folder are two tests defined:
-- `TestClient.php` tests the `Kapersoft\Sharefile\Client`-class using mock Guzzle objects;
-- `TestShareFileApi.php` tests the `Kapersoft\Sharefile\Client`-class using the live ShareFile API. To use this test fill in your ShareFile credentials under section `<PHP>` of the `phpunit.xml.dist`-file in the project root folder. Some tests need additional parameters to run. These parameters can be found in the first lines of the test.
+- `TestClient.php` tests the `Kapersoft\ShareFile\Client`-class using mock Guzzle objects;
+- `TestShareFileApi.php` tests the `Kapersoft\ShareFile\Client`-class using the live ShareFile API. To use this test fill in your ShareFile credentials under section `<PHP>` of the `phpunit.xml.dist`-file in the project root folder. Some tests need additional parameters to run. These parameters can be found in the first lines of the test.
  
 ## Security
 If you discover any security related issues, please email kapersoft@gmail.com instead of using the issue tracker.
